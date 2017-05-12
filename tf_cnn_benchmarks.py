@@ -20,16 +20,16 @@ See the README for more information.
 
 from __future__ import print_function
 
-import argparse
-from collections import defaultdict
 import os
-import threading
 import time
-
-import numpy as np
+import argparse
+import threading
+from collections import defaultdict
 
 import six
 from six.moves import xrange  # pylint: disable=redefined-builtin
+
+import numpy as np
 import tensorflow as tf
 
 from tensorflow.python.client import timeline
@@ -46,9 +46,9 @@ from tensorflow.contrib.layers.python.layers import initializers
 
 import cnn_util
 import datasets
-import model_config
 import preprocessing
 import variable_mgr
+from models import model_config
 
 tf.flags.DEFINE_string('model', 'trivial', 'name of the model to run')
 
