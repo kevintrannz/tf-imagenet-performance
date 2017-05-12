@@ -212,7 +212,7 @@ class GlobalStepWatcher(threading.Thread):
     """
 
     def __init__(self, sess, global_step_op,
-                             start_at_global_step, end_at_global_step):
+                 start_at_global_step, end_at_global_step):
         threading.Thread.__init__(self)
         self.sess = sess
         self.global_step_op = global_step_op
@@ -244,18 +244,18 @@ class GlobalStepWatcher(threading.Thread):
 
     def steps_per_second(self):
         return ((self.finish_step - self.start_step) /
-                        (self.finish_time - self.start_time))
+                (self.finish_time - self.start_time))
 
 
 class ConvNetBuilder(object):
     """Builder of cnn net."""
 
     def __init__(self,
-                             input_op,
-                             input_nchan,
-                             phase_train,
-                             data_format='NCHW',
-                             data_type=tf.float32):
+                 input_op,
+                 input_nchan,
+                 phase_train,
+                 data_format='NCHW',
+                 data_type=tf.float32):
         self.top_layer = input_op
         self.top_size = input_nchan
         self.phase_train = phase_train
@@ -268,16 +268,16 @@ class ConvNetBuilder(object):
                 'channels_last' if data_format == 'NHWC' else 'channels_first')
 
     def conv(self,
-                     num_out_channels,
-                     k_height,
-                     k_width,
-                     d_height=1,
-                     d_width=1,
-                     mode='SAME',
-                     input_layer=None,
-                     num_channels_in=None,
-                     batch_norm=None,
-                     activation='relu'):
+             num_out_channels,
+             k_height,
+             k_width,
+             d_height=1,
+             d_width=1,
+             mode='SAME',
+             input_layer=None,
+             num_channels_in=None,
+             batch_norm=None,
+             activation='relu'):
         if input_layer is None:
             input_layer = self.top_layer
         if num_channels_in is None:
@@ -349,13 +349,13 @@ class ConvNetBuilder(object):
             return conv1
 
     def mpool(self,
-                        k_height,
-                        k_width,
-                        d_height=2,
-                        d_width=2,
-                        mode='VALID',
-                        input_layer=None,
-                        num_channels_in=None):
+              k_height,
+              k_width,
+              d_height=2,
+              d_width=2,
+              mode='VALID',
+              input_layer=None,
+              num_channels_in=None):
         """Construct a max pooling layer."""
         if input_layer is None:
             input_layer = self.top_layer
@@ -372,13 +372,13 @@ class ConvNetBuilder(object):
         return pool
 
     def apool(self,
-                        k_height,
-                        k_width,
-                        d_height=2,
-                        d_width=2,
-                        mode='VALID',
-                        input_layer=None,
-                        num_channels_in=None):
+              k_height,
+              k_width,
+              d_height=2,
+              d_width=2,
+              mode='VALID',
+              input_layer=None,
+              num_channels_in=None):
         """Construct an average pooling layer."""
         if input_layer is None:
             input_layer = self.top_layer
@@ -402,10 +402,10 @@ class ConvNetBuilder(object):
         return self.top_layer
 
     def affine(self,
-                         num_out_channels,
-                         input_layer=None,
-                         num_channels_in=None,
-                         activation='relu'):
+               num_out_channels,
+               input_layer=None,
+               num_channels_in=None,
+               activation='relu'):
         if input_layer is None:
             input_layer = self.top_layer
         if num_channels_in is None:
@@ -417,11 +417,10 @@ class ConvNetBuilder(object):
             kernel = tf.get_variable(
                     'weights', [num_channels_in, num_out_channels],
                     self.data_type,
-                    tf.random_normal_initializer(stddev=np.sqrt(init_factor /
-                                                                                                            (num_channels_in))))
+                    tf.random_normal_initializer(stddev=np.sqrt(init_factor / (num_channels_in))))
             biases = tf.get_variable('biases', [num_out_channels],
-                                                             self.data_type,
-                                                             tf.constant_initializer(0.0))
+                                     self.data_type,
+                                     tf.constant_initializer(0.0))
             logits = tf.matmul(input_layer, kernel) + biases
             if activation == 'relu':
                 affine1 = tf.nn.relu(logits, name=name)
@@ -434,11 +433,11 @@ class ConvNetBuilder(object):
             return affine1
 
     def resnet_bottleneck_v1(self,
-                                                     depth,
-                                                     depth_bottleneck,
-                                                     stride,
-                                                     input_layer=None,
-                                                     in_size=None):
+                             depth,
+                             depth_bottleneck,
+                             stride,
+                             input_layer=None,
+                             in_size=None):
         if input_layer is None:
             input_layer = self.top_layer
         if in_size is None:
@@ -512,7 +511,7 @@ class ConvNetBuilder(object):
                         self.top_size = col_layer_sizes[c - 1][l]
                     else:
                         raise KeyError('Invalid layer type for inception module: \'%s\'' %
-                                                     ltype)
+                                       ltype)
                     col_layers[c].append(self.top_layer)
                     col_layer_sizes[c].append(self.top_size)
             catdim = 3 if self.data_format == 'NHWC' else 1
@@ -575,8 +574,8 @@ def loss_function(logits, labels):
 
 
 def add_image_preprocessing(dataset, input_nchan, image_size, batch_size,
-                                                        num_compute_devices, input_data_type,
-                                                        resize_method, train):
+                            num_compute_devices, input_data_type,
+                            resize_method, train):
     """Add image Preprocessing ops to tf graph."""
     if dataset is not None:
         preproc_train = preprocessing.ImagePreprocessor(
@@ -645,7 +644,7 @@ def get_mode_from_flags():
 
 
 def benchmark_one_step(sess, fetches, step, batch_size,
-                                             step_train_times, trace_filename, summary_op=None):
+                       step_train_times, trace_filename, summary_op=None):
     """Advance one step of benchmarking."""
     if trace_filename is not None and step == -1:
         run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
@@ -780,9 +779,9 @@ class BenchmarkCNN(object):
 
             if not self.server:
                 self.server = tf.train.Server(self.cluster, job_name=self.job_name,
-                                                                            task_index=self.task_index,
-                                                                            config=create_config_proto(),
-                                                                            protocol=FLAGS.server_protocol)
+                                              task_index=self.task_index,
+                                              config=create_config_proto(),
+                                              protocol=FLAGS.server_protocol)
             worker_prefix = '/job:worker/task:%s' % self.task_index
             self.param_server_device = tf.train.replica_device_setter(
                     worker_device=worker_prefix + '/cpu:0', cluster=self.cluster)
@@ -790,7 +789,7 @@ class BenchmarkCNN(object):
             # servers should be stored.
             num_ps = len(self.ps_hosts)
             self.sync_queue_devices = ['/job:ps/task:%s/cpu:0' % i
-                                                                 for i in range(num_ps)]
+                                       for i in range(num_ps)]
         else:
             self.task_index = 0
             self.cluster = None
@@ -805,11 +804,11 @@ class BenchmarkCNN(object):
         # Device to use for ops that need to always run on the local worker's
         # compute device, and never on a parameter server device.
         self.raw_devices = ['%s/%s:%i' % (worker_prefix, FLAGS.device, i)
-                                                for i in xrange(FLAGS.num_gpus)]
+                            for i in xrange(FLAGS.num_gpus)]
 
         if FLAGS.staged_vars and FLAGS.variable_update != 'parameter_server':
             raise ValueError('staged_vars for now is only supported with '
-                                             '--variable_update=parameter_server')
+                             '--variable_update=parameter_server')
 
         if FLAGS.variable_update == 'parameter_server':
             if self.job_name:
@@ -828,18 +827,18 @@ class BenchmarkCNN(object):
         elif FLAGS.variable_update == 'replicated':
             if self.job_name:
                 raise ValueError('Invalid --variable_update in distributed mode: %s' %
-                                                 FLAGS.variable_update)
+                                 FLAGS.variable_update)
             self.variable_mgr = variable_mgr.VariableMgrLocalReplicated(
                     self, FLAGS.use_nccl)
         elif FLAGS.variable_update == 'distributed_replicated':
             if not self.job_name:
                 raise ValueError('Invalid --variable_update in local mode: %s' %
-                                                 FLAGS.variable_update)
+                                 FLAGS.variable_update)
             self.variable_mgr = variable_mgr.VariableMgrDistributedReplicated(self)
         elif FLAGS.variable_update == 'independent':
             if self.job_name:
                 raise ValueError('Invalid --variable_update in distributed mode: %s' %
-                                                 FLAGS.variable_update)
+                                 FLAGS.variable_update)
             self.variable_mgr = variable_mgr.VariableMgrIndependent(self)
         else:
             raise ValueError('Invalid --variable_update: %s' % FLAGS.variable_update)
@@ -887,7 +886,7 @@ class BenchmarkCNN(object):
         (enqueue_ops, fetches) = self._build_model()
         saver = tf.train.Saver(tf.global_variables())
         summary_writer = tf.summary.FileWriter(FLAGS.eval_dir,
-                                                                                     tf.get_default_graph())
+                                               tf.get_default_graph())
         target = ''
         with tf.Session(target=target, config=create_config_proto()) as sess:
             for i in xrange(len(enqueue_ops)):
@@ -916,7 +915,7 @@ class BenchmarkCNN(object):
             summary.value.add(tag='eval/Recall@5', simple_value=recall_at_5)
             summary_writer.add_summary(summary, global_step)
             log_fn('Precision @ 1 = %.4f recall @ 5 = %.4f [%d examples]' %
-                         (precision_at_1, recall_at_5, total_eval_count))
+                   (precision_at_1, recall_at_5, total_eval_count))
 
     def _benchmark_cnn(self):
         """Run cnn in benchmark mode. When forward_only on, it forwards CNN."""
@@ -952,7 +951,7 @@ class BenchmarkCNN(object):
                 FLAGS.train_dir and
                 FLAGS.save_summaries_steps > 0):
             summary_writer = tf.summary.FileWriter(FLAGS.train_dir,
-                                                                                         tf.get_default_graph())
+                                                   tf.get_default_graph())
 
         # We run the summaries in the same thread as the training operations by
         # passing in None for summary_op to avoid a summary_thread being started.
@@ -1031,7 +1030,7 @@ class BenchmarkCNN(object):
                 time.sleep(.25)
             log_fn('-' * 64)
             log_fn('total images/sec: %.2f' %
-                         (global_step_watcher.steps_per_second() * self.batch_size))
+                   (global_step_watcher.steps_per_second() * self.batch_size))
             log_fn('-' * 64)
             # Save the model checkpoint.
             if FLAGS.train_dir is not None and is_chief:
@@ -1165,8 +1164,8 @@ class BenchmarkCNN(object):
                     opt = tf.train.GradientDescentOptimizer(learning_rate)
                 elif FLAGS.optimizer == 'rmsprop':
                     opt = tf.train.RMSPropOptimizer(learning_rate, FLAGS.rmsprop_decay,
-                                                                                    momentum=FLAGS.rmsprop_momentum,
-                                                                                    epsilon=FLAGS.rmsprop_epsilon)
+                                                    momentum=FLAGS.rmsprop_momentum,
+                                                    epsilon=FLAGS.rmsprop_epsilon)
                 else:
                     raise ValueError('Optimizer "%s" was not recognized', FLAGS.optimizer)
 
@@ -1292,7 +1291,7 @@ class BenchmarkCNN(object):
                 self.sync_queue_counter % len(self.sync_queue_devices)]):
             sync_queues = [
                     tf.FIFOQueue(num_workers, [tf.bool], shapes=[[]],
-                                             shared_name='%s%s' % (name_prefix, i))
+                                 shared_name='%s%s' % (name_prefix, i))
                     for i in range(num_workers)]
             queue_ops = []
             # For each other worker, add an entry in a queue, signaling that it can
