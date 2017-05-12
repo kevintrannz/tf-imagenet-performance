@@ -32,10 +32,6 @@ import numpy as np
 import tensorflow as tf
 
 from tensorflow.python.client import timeline
-from tensorflow.python.layers import convolutional as conv_layers
-from tensorflow.python.layers import core as core_layers
-from tensorflow.python.layers import pooling as pooling_layers
-
 from tensorflow.python.ops import data_flow_ops
 from tensorflow.python.platform import gfile
 
@@ -959,7 +955,7 @@ class BenchmarkCNN(object):
             return (loss, gradvars)
 
     def add_sync_queues_and_barrier(self, name_prefix,
-                                                                    enqueue_after_list):
+                                    enqueue_after_list):
         """Adds ops to enqueue on all worker queues.
 
         Args:
@@ -1005,7 +1001,6 @@ def main(_):
     os.environ['TF_SYNC_ON_FINISH'] = str(int(FLAGS.sync_on_finish))
     argparse.ArgumentParser(
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
 
     bench = BenchmarkCNN()
 
