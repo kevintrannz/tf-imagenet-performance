@@ -120,7 +120,7 @@ tf.flags.DEFINE_string('optimizer', 'sgd',
                                              'Optimizer to use: momentum or sgd or rmsprop')
 tf.flags.DEFINE_float('learning_rate', None,
                                             """Initial learning rate for training.""")
-tf.flags.DEFINE_float('num_epochs_per_decay', 2.0,
+tf.flags.DEFINE_float('num_epochs_per_decay', 0,
                                             """Steps after which learning rate decays.""")
 tf.flags.DEFINE_float('learning_rate_decay_factor', 0.94,
                                             """Learning rate decay factor.""")
