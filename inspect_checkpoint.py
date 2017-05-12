@@ -84,7 +84,7 @@ def parse_numpy_printoption(kv_str):
     v_type = type(printoptions[k])
     if v_type is type(None):
         raise argparse.ArgumentTypeError(
-                "Setting '%s' from the command line is not supported." % k)
+            "Setting '%s' from the command line is not supported." % k)
     try:
         v = (v_type(v_str) if v_type is not bool
              else flags.BooleanParser().Parse(v_str))
@@ -107,9 +107,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.register("type", "bool", lambda v: v.lower() == "true")
     parser.add_argument(
-            "--file_name", type=str, default="", help="Checkpoint filename. "
-                                        "Note, if using Checkpoint V2 format, file_name is the "
-                                        "shared prefix between all files in the checkpoint.")
+            "--filename", type=str, default="", help="Checkpoint filename. "
+            "Note, if using Checkpoint V2 format, file_name is the "
+            "shared prefix between all files in the checkpoint.")
     parser.add_argument(
             "--tensor_name",
             type=str,
