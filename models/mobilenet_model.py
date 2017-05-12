@@ -18,7 +18,7 @@
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
 
-import model as model_lib
+from models import model as model_lib
 
 
 class MobileNetModel(model_lib.Model):

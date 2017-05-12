@@ -21,7 +21,7 @@ References:
     Advances in Neural Information Processing Systems. 2012
 """
 
-import model
+from models import model
 
 
 class AlexnetModel(model.Model):
