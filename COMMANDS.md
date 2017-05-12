@@ -36,3 +36,28 @@ python tf_cnn_benchmarks.py \
     --batch_size=32 \
     --model=resnet50
 
+
+# =========================================================================== #
+# MobileNets training
+# =========================================================================== #
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+TRAIN_DIR=/media/paul/DataExt4/ImageNet/training/logs/mobilenet_001
+
+python tf_cnn_benchmarks.py \
+    --local_parameter_device=cpu \
+    --train_dir=${TRAIN_DIR} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --model=mobilenet \
+    --variable_update=parameter_server \
+    --num_batches=10000000000 \
+    --summary_verbosity=1 \
+    --save_summaries_steps=100 \
+    --save_model_secs=600 \
+    --num_gpus=1 \
+    --weight_decay=0.00001 \
+    --learning_rate=0.001 \
+    --learning_rate_decay_factor=0.94 \
+    --optimizer=rmsprop \
+    --batch_size=32
+

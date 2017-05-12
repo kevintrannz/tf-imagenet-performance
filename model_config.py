@@ -63,11 +63,11 @@ def get_model_config(model):
         mc = resnet_model.Resnetv1Model(model, (3, 8, 36, 3))
     # MobileNet models.
     elif model == 'mobilenet':
-        mc = mobilenet_model.MobileNet(model, width_mult=1.0, layer_counts=[5])
+        mc = mobilenet_model.MobileNetModel(model, width_mult=1.0, layer_counts=[5])
     elif model == 'mobilenet_w75':
-        mc = mobilenet_model.MobileNet(model, width_mult=0.75, layer_counts=[5])
+        mc = mobilenet_model.MobileNetModel(model, width_mult=0.75, layer_counts=[5])
     elif model == 'mobilenet_w50':
-        mc = mobilenet_model.MobileNet(model, width_mult=0.5, layer_counts=[5])
+        mc = mobilenet_model.MobileNetModel(model, width_mult=0.5, layer_counts=[5])
     else:
         raise KeyError('Invalid model name \'%s\'' % model)
     return mc
