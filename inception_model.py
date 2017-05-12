@@ -49,40 +49,40 @@ class Inceptionv3Model(model.Model):
     def add_inference(self, cnn):
         def inception_v3_a(cnn, n):
             cols = [[('conv', 64, 1, 1)], [('conv', 48, 1, 1), ('conv', 64, 5, 5)],
-                            [('conv', 64, 1, 1), ('conv', 96, 3, 3), ('conv', 96, 3, 3)],
-                            [('apool', 3, 3, 1, 1, 'SAME'), ('conv', n, 1, 1)]]
+                    [('conv', 64, 1, 1), ('conv', 96, 3, 3), ('conv', 96, 3, 3)],
+                    [('apool', 3, 3, 1, 1, 'SAME'), ('conv', n, 1, 1)]]
             cnn.inception_module('incept_v3_a', cols)
 
         def inception_v3_b(cnn):
             cols = [[('conv', 384, 3, 3, 2, 2, 'VALID')],
-                            [('conv', 64, 1, 1),
-                             ('conv', 96, 3, 3),
-                             ('conv', 96, 3, 3, 2, 2, 'VALID')],
-                            [('mpool', 3, 3, 2, 2, 'VALID')]]
+                    [('conv', 64, 1, 1),
+                     ('conv', 96, 3, 3),
+                     ('conv', 96, 3, 3, 2, 2, 'VALID')],
+                    [('mpool', 3, 3, 2, 2, 'VALID')]]
             cnn.inception_module('incept_v3_b', cols)
 
         def inception_v3_c(cnn, n):
             cols = [[('conv', 192, 1, 1)],
-                            [('conv', n, 1, 1), ('conv', n, 1, 7), ('conv', 192, 7, 1)],
-                            [('conv', n, 1, 1), ('conv', n, 7, 1), ('conv', n, 1, 7),
-                             ('conv', n, 7, 1), ('conv', 192, 1, 7)],
-                            [('apool', 3, 3, 1, 1, 'SAME'), ('conv', 192, 1, 1)]]
+                    [('conv', n, 1, 1), ('conv', n, 1, 7), ('conv', 192, 7, 1)],
+                    [('conv', n, 1, 1), ('conv', n, 7, 1), ('conv', n, 1, 7),
+                     ('conv', n, 7, 1), ('conv', 192, 1, 7)],
+                    [('apool', 3, 3, 1, 1, 'SAME'), ('conv', 192, 1, 1)]]
             cnn.inception_module('incept_v3_c', cols)
 
         def inception_v3_d(cnn):
             cols = [[('conv', 192, 1, 1), ('conv', 320, 3, 3, 2, 2, 'VALID')],
-                            [('conv', 192, 1, 1), ('conv', 192, 1, 7), ('conv', 192, 7, 1),
-                             ('conv', 192, 3, 3, 2, 2, 'VALID')],
-                            [('mpool', 3, 3, 2, 2, 'VALID')]]
+                    [('conv', 192, 1, 1), ('conv', 192, 1, 7), ('conv', 192, 7, 1),
+                     ('conv', 192, 3, 3, 2, 2, 'VALID')],
+                    [('mpool', 3, 3, 2, 2, 'VALID')]]
             cnn.inception_module('incept_v3_d', cols)
 
         def inception_v3_e(cnn, pooltype):
             cols = [[('conv', 320, 1, 1)], [('conv', 384, 1, 1), ('conv', 384, 1, 3)],
-                            [('share',), ('conv', 384, 3, 1)],
-                            [('conv', 448, 1, 1), ('conv', 384, 3, 3), ('conv', 384, 1, 3)],
-                            [('share',), ('share',), ('conv', 384, 3, 1)],
-                            [('mpool' if pooltype == 'max' else 'apool', 3, 3, 1, 1, 'SAME'),
-                             ('conv', 192, 1, 1)]]
+                    [('share',), ('conv', 384, 3, 1)],
+                    [('conv', 448, 1, 1), ('conv', 384, 3, 3), ('conv', 384, 1, 3)],
+                    [('share',), ('share',), ('conv', 384, 3, 1)],
+                    [('mpool' if pooltype == 'max' else 'apool', 3, 3, 1, 1, 'SAME'),
+                     ('conv', 192, 1, 1)]]
             cnn.inception_module('incept_v3_e', cols)
 
         cnn.use_batch_norm = True
@@ -116,14 +116,14 @@ def inception_v4_sa(cnn):
 
 def inception_v4_sb(cnn):
     cols = [[('conv', 64, 1, 1), ('conv', 96, 3, 3, 1, 1, 'VALID')],
-                    [('conv', 64, 1, 1), ('conv', 64, 7, 1), ('conv', 64, 1, 7),
-                     ('conv', 96, 3, 3, 1, 1, 'VALID')]]
+            [('conv', 64, 1, 1), ('conv', 64, 7, 1), ('conv', 64, 1, 7),
+             ('conv', 96, 3, 3, 1, 1, 'VALID')]]
     cnn.inception_module('incept_v4_sb', cols)
 
 
 def inception_v4_sc(cnn):
     cols = [[('conv', 192, 3, 3, 2, 2, 'VALID')],
-                    [('mpool', 3, 3, 2, 2, 'VALID')]]
+            [('mpool', 3, 3, 2, 2, 'VALID')]]
     cnn.inception_module('incept_v4_sc', cols)
 
 
@@ -138,9 +138,9 @@ def inception_v4_ra(cnn, k, l, m, n):
 
 def inception_v4_rb(cnn):
     cols = [[('mpool', 3, 3, 2, 2, 'VALID')],
-                    [('conv', 192, 1, 1), ('conv', 192, 3, 3, 2, 2, 'VALID')],
-                    [('conv', 256, 1, 1), ('conv', 256, 1, 7), ('conv', 320, 7, 1),
-                     ('conv', 320, 3, 3, 2, 2, 'VALID')]]
+            [('conv', 192, 1, 1), ('conv', 192, 3, 3, 2, 2, 'VALID')],
+            [('conv', 256, 1, 1), ('conv', 256, 1, 7), ('conv', 320, 7, 1),
+             ('conv', 320, 3, 3, 2, 2, 'VALID')]]
     cnn.inception_module('incept_v4_rb', cols)
 
 
@@ -152,25 +152,25 @@ class Inceptionv4Model(model.Model):
     def add_inference(self, cnn):
         def inception_v4_a(cnn):
             cols = [[('apool', 3, 3, 1, 1, 'SAME'), ('conv', 96, 1, 1)],
-                            [('conv', 96, 1, 1)], [('conv', 64, 1, 1), ('conv', 96, 3, 3)],
-                            [('conv', 64, 1, 1), ('conv', 96, 3, 3), ('conv', 96, 3, 3)]]
+                    [('conv', 96, 1, 1)], [('conv', 64, 1, 1), ('conv', 96, 3, 3)],
+                    [('conv', 64, 1, 1), ('conv', 96, 3, 3), ('conv', 96, 3, 3)]]
             cnn.inception_module('incept_v4_a', cols)
 
         def inception_v4_b(cnn):
             cols = [[('apool', 3, 3, 1, 1, 'SAME'), ('conv', 128, 1, 1)],
-                            [('conv', 384, 1, 1)],
-                            [('conv', 192, 1, 1), ('conv', 224, 1, 7), ('conv', 256, 7, 1)],
-                            [('conv', 192, 1, 1), ('conv', 192, 1, 7), ('conv', 224, 7, 1),
-                             ('conv', 224, 1, 7), ('conv', 256, 7, 1)]]
+                    [('conv', 384, 1, 1)],
+                    [('conv', 192, 1, 1), ('conv', 224, 1, 7), ('conv', 256, 7, 1)],
+                    [('conv', 192, 1, 1), ('conv', 192, 1, 7), ('conv', 224, 7, 1),
+                     ('conv', 224, 1, 7), ('conv', 256, 7, 1)]]
             cnn.inception_module('incept_v4_b', cols)
 
         def inception_v4_c(cnn):
             cols = [[('apool', 3, 3, 1, 1, 'SAME'), ('conv', 256, 1, 1)],
-                            [('conv', 256, 1, 1)], [('conv', 384, 1, 1), ('conv', 256, 1, 3)],
-                            [('share',), ('conv', 256, 3, 1)],
-                            [('conv', 384, 1, 1), ('conv', 448, 1, 3), ('conv', 512, 3, 1),
-                             ('conv', 256, 3, 1)], [('share',), ('share',), ('share',),
-                                                                            ('conv', 256, 1, 3)]]
+                    [('conv', 256, 1, 1)], [('conv', 384, 1, 1), ('conv', 256, 1, 3)],
+                    [('share',), ('conv', 256, 3, 1)],
+                    [('conv', 384, 1, 1), ('conv', 448, 1, 3), ('conv', 512, 3, 1),
+                     ('conv', 256, 3, 1)], [('share',), ('share',), ('share',),
+                                                                    ('conv', 256, 1, 3)]]
             cnn.inception_module('incept_v4_c', cols)
 
         cnn.use_batch_norm = True

@@ -16,14 +16,14 @@
 
 
 class Model(object):
-    """Base model configuration for CNN benchmarks."""
-
+    """Base model configuration for CNN benchmarks.
+    """
     def __init__(self,
-                             model,
-                             image_size,
-                             batch_size,
-                             learning_rate,
-                             layer_counts=None):
+                 model,
+                 image_size,
+                 batch_size,
+                 learning_rate,
+                 layer_counts=None):
         self.model = model
         self.image_size = image_size
         self.batch_size = batch_size
