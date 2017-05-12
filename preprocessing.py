@@ -62,19 +62,19 @@ def parse_example_proto(example_serialized):
     # Dense features in Example proto.
     feature_map = {
             'image/encoded': tf.FixedLenFeature([], dtype=tf.string,
-                                                                                    default_value=''),
+                                                default_value=''),
             'image/class/label': tf.FixedLenFeature([1], dtype=tf.int64,
-                                                                                            default_value=-1),
+                                                    default_value=-1),
             'image/class/text': tf.FixedLenFeature([], dtype=tf.string,
-                                                                                         default_value=''),
+                                                   default_value=''),
     }
     sparse_float32 = tf.VarLenFeature(dtype=tf.float32)
     # Sparse features in Example proto.
     feature_map.update(
             {k: sparse_float32 for k in ['image/object/bbox/xmin',
-                                                                     'image/object/bbox/ymin',
-                                                                     'image/object/bbox/xmax',
-                                                                     'image/object/bbox/ymax']})
+                                         'image/object/bbox/ymin',
+                                         'image/object/bbox/xmax',
+                                         'image/object/bbox/ymax']})
 
     features = tf.parse_single_example(example_serialized, feature_map)
     label = tf.cast(features['image/class/label'], dtype=tf.int32)
@@ -112,11 +112,10 @@ def decode_jpeg(image_buffer, scope=None):  # , dtype=tf.float32):
         # that is set dynamically by decode_jpeg. In other words, the height
         # and width of image is unknown at compile-time.
         image = tf.image.decode_jpeg(image_buffer, channels=3,
-                                                                 fancy_upscaling=False,
-                                                                 dct_method='INTEGER_FAST')
+                                     fancy_upscaling=False,
+                                     dct_method='INTEGER_FAST')
 
         # image = tf.Print(image, [tf.shape(image)], 'Image shape: ')
-
         return image
 
 
@@ -209,7 +208,7 @@ def distort_image(image, height, width, bbox, thread_id=0, scope=None):
             image_with_box = tf.image.draw_bounding_boxes(tf.expand_dims(image, 0),
                                                                                                         bbox)
             tf.summary.image(
-                    'image_with_bounding_boxes', image_with_box)
+                'image_with_bounding_boxes', image_with_box)
 
     # A large fraction of image datasets contain a human-annotated bounding
     # box delineating the region of the image containing the object of interest.
@@ -231,8 +230,8 @@ def distort_image(image, height, width, bbox, thread_id=0, scope=None):
             image_with_distorted_box = tf.image.draw_bounding_boxes(
                     tf.expand_dims(image, 0), distort_bbox)
             tf.summary.image(
-                    'images_with_distorted_bounding_box',
-                    image_with_distorted_box)
+                'images_with_distorted_bounding_box',
+                image_with_distorted_box)
 
         # Crop the image to the specified bounding box.
         distorted_image = tf.slice(image, bbox_begin, bbox_size)
@@ -253,8 +252,8 @@ def distort_image(image, height, width, bbox, thread_id=0, scope=None):
         distorted_image.set_shape([height, width, 3])
         if not thread_id:
             tf.summary.image(
-                    'cropped_resized_image',
-                    tf.expand_dims(distorted_image, 0))
+                'cropped_resized_image',
+                tf.expand_dims(distorted_image, 0))
 
         # Randomly flip the image horizontally.
         distorted_image = tf.image.random_flip_left_right(distorted_image)
@@ -267,8 +266,8 @@ def distort_image(image, height, width, bbox, thread_id=0, scope=None):
 
         if not thread_id:
             tf.summary.image(
-                    'final_distorted_image',
-                    tf.expand_dims(distorted_image, 0))
+                'final_distorted_image',
+                tf.expand_dims(distorted_image, 0))
         return distorted_image
 
 
@@ -312,14 +311,14 @@ class ImagePreprocessor(object):
     """Preprocessor for input images."""
 
     def __init__(self,
-                             height,
-                             width,
-                             batch_size,
-                             device_count,
-                             dtype=tf.float32,
-                             train=True,
-                             distortions=None,
-                             resize_method=None):
+                 height,
+                 width,
+                 batch_size,
+                 device_count,
+                 dtype=tf.float32,
+                 train=True,
+                 distortions=None,
+                 resize_method=None):
         self.height = height
         self.width = width
         self.batch_size = batch_size
@@ -341,12 +340,12 @@ class ImagePreprocessor(object):
         """Preprocessing image_buffer using thread_id."""
         # Note: Width and height of image is known only at runtime.
         image = tf.image.decode_jpeg(image_buffer, channels=3,
-                                                                 dct_method='INTEGER_FAST')
+                                     dct_method='INTEGER_FAST')
         if self.train and self.distortions:
             image = distort_image(image, self.height, self.width, bbox, thread_id)
         else:
             image = eval_image(image, self.height, self.width, bbox, thread_id,
-                                                 self.resize_method)
+                               self.resize_method)
         # Note: image is now float32 [height,width,3] with range [0, 255]
 
         # image = tf.cast(image, tf.uint8) # HACK TESTING

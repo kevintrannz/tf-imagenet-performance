@@ -55,7 +55,7 @@ nohup python -u tf_cnn_benchmarks.py \
     --variable_update=parameter_server \
     --num_batches=1000000000000 \
     --summary_verbosity=1 \
-    --save_summaries_steps=100 \
+    --save_summaries_steps=600 \
     --save_model_secs=600 \
     --num_gpus=1 \
     --weight_decay=0.00001 \
