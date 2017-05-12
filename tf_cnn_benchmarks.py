@@ -36,13 +36,14 @@ from tensorflow.python.client import timeline
 from tensorflow.python.layers import convolutional as conv_layers
 from tensorflow.python.layers import core as core_layers
 from tensorflow.python.layers import pooling as pooling_layers
-from tensorflow.contrib import layers as tfc_layers
-
-from tensorflow.contrib.framework.python.ops import variables
-from tensorflow.contrib.layers.python.layers import initializers
 
 from tensorflow.python.ops import data_flow_ops
 from tensorflow.python.platform import gfile
+
+from tensorflow.contrib import layers as tfc_layers
+from tensorflow.contrib.framework.python.ops import variables
+from tensorflow.contrib.layers.python.layers import initializers
+
 import cnn_util
 import datasets
 import model_config
@@ -65,70 +66,69 @@ tf.flags.DEFINE_string('model', 'trivial', 'name of the model to run')
 # Main training parameters
 # =========================================================================== #
 tf.flags.DEFINE_boolean('eval', False, 'whether use eval or benchmarking')
-tf.flags.DEFINE_boolean('forward_only', False, """whether use forward-only or
-                                                 training for benchmarking""")
+tf.flags.DEFINE_boolean('forward_only', False,
+                        """whether use forward-only or training for benchmarking""")
 tf.flags.DEFINE_integer('batch_size', 0, 'batch size per compute device')
 tf.flags.DEFINE_integer('num_batches', 100,
-                                                'number of batches to run, excluding warmup')
+                        'number of batches to run, excluding warmup')
 tf.flags.DEFINE_integer('num_warmup_batches', None,
-                                                'number of batches to run before timing')
+                        'number of batches to run before timing')
 tf.flags.DEFINE_integer('autotune_threshold', None,
-                                                'The autotune threshold for the models')
+                        'The autotune threshold for the models')
 tf.flags.DEFINE_integer('num_gpus', 1, 'the number of GPUs to run on')
 tf.flags.DEFINE_integer('display_every', 10,
-                                                """Number of local steps after which progress is printed
-                                                out""")
+                        """Number of local steps after which progress is printed out""")
 tf.flags.DEFINE_string('data_dir', None, """Path to dataset in TFRecord format
-                                             (aka Example protobufs). If not specified,
-                                             synthetic data will be used.""")
+                                            (aka Example protobufs). If not specified,
+                                            synthetic data will be used.""")
 tf.flags.DEFINE_string('data_name', None,
-                                             """Name of dataset: imagenet or flowers.
-                                             If not specified, it is automatically guessed
-                                             based on --data_dir.""")
+                       """Name of dataset: imagenet or flowers.
+                       If not specified, it is automatically guessed
+                       based on --data_dir.""")
 tf.flags.DEFINE_string('resize_method', 'bilinear',
-                                             """Method for resizing input images:
-                                             crop,nearest,bilinear,bicubic or area.
-                                             The 'crop' mode requires source images to be at least
-                                             as large as the network input size,
-                                             while the other modes support any sizes and apply
-                                             random bbox distortions
-                                             before resizing (even with --nodistortions).""")
+                       """Method for resizing input images:
+                       crop,nearest,bilinear,bicubic or area.
+                       The 'crop' mode requires source images to be at least
+                       as large as the network input size,
+                       while the other modes support any sizes and apply
+                       random bbox distortions
+                       before resizing (even with --nodistortions).""")
 tf.flags.DEFINE_boolean('distortions', True,
-                                                """Enable/disable distortions during
-                                             image preprocessing. These include bbox and color
-                                             distortions.""")
+                        """Enable/disable distortions during
+                        image preprocessing. These include bbox and color
+                        distortions.""")
 tf.flags.DEFINE_string('local_parameter_device', 'gpu',
-                                             """Device to use as parameter server: cpu or gpu.
-                                                    For distributed training, it can affect where caching
-                                                    of variables happens.""")
+                       """Device to use as parameter server: cpu or gpu.
+                       For distributed training, it can affect where caching
+                       of variables happens.""")
 tf.flags.DEFINE_string('device', 'gpu',
-                                             """Device to use for computation: cpu or gpu""")
+                       """Device to use for computation: cpu or gpu""")
 tf.flags.DEFINE_string('data_format', 'NCHW',
-                                             """Data layout to use: NHWC (TF native)
-                                             or NCHW (cuDNN native).""")
+                       """Data layout to use: NHWC (TF native)
+                       or NCHW (cuDNN native).""")
 tf.flags.DEFINE_integer('num_intra_threads', 1,
-                                                """Number of threads to use for intra-op
-                                             parallelism. If set to 0, the system will pick
-                                             an appropriate number.""")
+                        """Number of threads to use for intra-op
+                        parallelism. If set to 0, the system will pick
+                        an appropriate number.""")
 tf.flags.DEFINE_integer('num_inter_threads', 0,
-                                                """Number of threads to use for inter-op
-                                             parallelism. If set to 0, the system will pick
-                                             an appropriate number.""")
+                        """Number of threads to use for inter-op
+                        parallelism. If set to 0, the system will pick
+                        an appropriate number.""")
 tf.flags.DEFINE_string('trace_file', None,
-                                             """Enable TensorFlow tracing and write trace to
-                                             this file.""")
+                       """Enable TensorFlow tracing and write trace to
+                       this file.""")
 tf.flags.DEFINE_string('graph_file', None,
-                                             """Write the model's graph definition to this
-                                             file. Defaults to binary format unless filename ends
-                                             in 'txt'.""")
+                       """Write the model's graph definition to this
+                       file. Defaults to binary format unless filename ends
+                       in 'txt'.""")
 tf.flags.DEFINE_string('optimizer', 'sgd',
-                                             'Optimizer to use: momentum or sgd or rmsprop')
+                       'Optimizer to use: momentum or sgd or rmsprop')
 tf.flags.DEFINE_float('learning_rate', None,
-                                            """Initial learning rate for training.""")
+                      """Initial learning rate for training.""")
 tf.flags.DEFINE_float('num_epochs_per_decay', 0,
-                                            """Steps after which learning rate decays.""")
+                      """Steps after which learning rate decays.""")
 tf.flags.DEFINE_float('learning_rate_decay_factor', 0.94,
-                                            """Learning rate decay factor.""")
+                      """Learning rate decay factor.""")
 tf.flags.DEFINE_float('momentum', 0.9, """Momentum for training.""")
 tf.flags.DEFINE_float('rmsprop_decay', 0.9, """Decay term for RMSProp.""")
 tf.flags.DEFINE_float('rmsprop_momentum', 0.9, """Momentum in RMSProp.""")
@@ -136,21 +136,21 @@ tf.flags.DEFINE_float('rmsprop_epsilon', 1.0, """Epsilon term for RMSProp.""")
 tf.flags.DEFINE_float('gradient_clip', None, """Gradient clipping magnitude.
                                              Disabled by default.""")
 tf.flags.DEFINE_float('weight_decay', 0.00004,
-                                            """Weight decay factor for training.""")
+                      """Weight decay factor for training.""")
 
 # Performance tuning flags.
 tf.flags.DEFINE_boolean('winograd_nonfused', True,
-                                                """Enable/disable using the Winograd non-fused
-                                                algorithms.""")
+                        """Enable/disable using the Winograd non-fused
+                        algorithms.""")
 tf.flags.DEFINE_boolean('sync_on_finish', False,
-                                                """Enable/disable whether the devices are synced after
-                                                each step.""")
+                        """Enable/disable whether the devices are synced after
+                        each step.""")
 tf.flags.DEFINE_boolean('staged_vars', False,
-                                                """whether the variables are staged from the main
-                                                computation""")
+                        """whether the variables are staged from the main
+                        computation""")
 tf.flags.DEFINE_boolean('force_gpu_compatible', True,
-                                                """whether to enable force_gpu_compatible in
-                                                GPU_Options""")
+                        """whether to enable force_gpu_compatible in
+                        GPU_Options""")
 # The method for managing variables:
 #   parameter_server: variables are stored on a parameter server that holds
 #       the master copy of the variable.  In local execution, a local device
@@ -179,30 +179,30 @@ tf.flags.DEFINE_boolean(
 
 # Distributed training flags.
 tf.flags.DEFINE_string('job_name', '',
-                                             'One of "ps", "worker", "".  Empty for local training')
+                       'One of "ps", "worker", "".  Empty for local training')
 tf.flags.DEFINE_string('ps_hosts', '', 'Comma-separated list of target hosts')
 tf.flags.DEFINE_string('worker_hosts', '',
-                                             'Comma-separated list of target hosts')
+                       'Comma-separated list of target hosts')
 tf.flags.DEFINE_integer('task_index', 0, 'Index of task within the job')
 tf.flags.DEFINE_string('server_protocol', 'grpc', 'protocol for servers')
 tf.flags.DEFINE_boolean('cross_replica_sync', True, '')
 
 # Summary and Save & load checkpoints.
 tf.flags.DEFINE_integer('summary_verbosity', 0,
-                                                """Verbosity level for summary ops. Pass 0 to disable
-                                                both summaries and checkpoints.""")
+                        """Verbosity level for summary ops. Pass 0 to disable
+                        both summaries and checkpoints.""")
 tf.flags.DEFINE_integer('save_summaries_steps', 0,
-                                                """How often to save summaries for trained models.
-                                                Pass 0 to disable summaries.""")
+                        """How often to save summaries for trained models.
+                        Pass 0 to disable summaries.""")
 tf.flags.DEFINE_integer('save_model_secs', 0,
-                                                """How often to save trained models. Pass 0 to disable
-                                                checkpoints""")
+                        """How often to save trained models. Pass 0 to disable
+                        checkpoints""")
 tf.flags.DEFINE_string('train_dir', None,
-                                             """Path to session checkpoints.""")
+                       """Path to session checkpoints.""")
 tf.flags.DEFINE_string('eval_dir', '/tmp/tf_cnn_benchmarks/eval',
-                                             """Directory where to write eval event logs.""")
+                       """Directory where to write eval event logs.""")
 tf.flags.DEFINE_string('pretrain_dir', None,
-                                             """Path to pretrained session checkpoints.""")
+                       """Path to pretrained session checkpoints.""")
 
 FLAGS = tf.flags.FLAGS
 
