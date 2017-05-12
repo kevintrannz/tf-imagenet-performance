@@ -24,6 +24,7 @@ import overfeat_model
 import resnet_model
 import trivial_model
 import vgg_model
+import mobilenet_model
 
 
 def get_model_config(model):
@@ -60,6 +61,13 @@ def get_model_config(model):
         mc = resnet_model.Resnetv1Model(model, (3, 4, 23, 3))
     elif model == 'resnet152':
         mc = resnet_model.Resnetv1Model(model, (3, 8, 36, 3))
+    # MobileNet models.
+    elif model == 'mobilenet':
+        mc = mobilenet_model.MobileNet(model, width_mult=1.0, layer_counts=[5])
+    elif model == 'mobilenet_w75':
+        mc = mobilenet_model.MobileNet(model, width_mult=0.75, layer_counts=[5])
+    elif model == 'mobilenet_w50':
+        mc = mobilenet_model.MobileNet(model, width_mult=0.5, layer_counts=[5])
     else:
         raise KeyError('Invalid model name \'%s\'' % model)
     return mc

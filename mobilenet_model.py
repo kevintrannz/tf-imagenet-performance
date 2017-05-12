@@ -21,28 +21,24 @@ from six.moves import xrange  # pylint: disable=redefined-builtin
 import model as model_lib
 
 
-def mobilenet_block(cnn, num_out_channels, d_height=1, d_width=1):
-    """Basic MobileNet block: depthwise conv + 1x1 conv.
-    """
-    cnn.conv_dw(3, 3, d_height, d_width)
-    cnn.conv(num_out_channels, 1, 1)
-
-
 class MobileNetModel(model_lib.Model):
     """Resnet V1 cnn network configuration."""
 
-    def __init__(self, model, layer_counts=[5]):
-        defaults = {
-            'mobilenet': 32,
-        }
-        batch_size = defaults.get(model, 32)
+    def __init__(self, model, width_mult=1.0, layer_counts=[5]):
+        self.width_mult = width_mult
         super(MobileNetModel, self).__init__(model,
                                              image_size=224,
-                                             batch_size=batch_size,
+                                             batch_size=32,
                                              learning_rate=0.005,
                                              layer_counts=layer_counts)
 
     def add_inference(self, cnn):
+        def mobilenet_block(num_out_channels, d_height=1, d_width=1):
+            """Basic MobileNet block: depthwise conv + 1x1 conv."""
+            num_out_channels = int(num_out_channels * self.width_mult)
+            cnn.conv_dw(3, 3, d_height, d_width)
+            cnn.conv(num_out_channels, 1, 1)
+
         if self.layer_counts is None:
             raise ValueError('Layer counts not specified for %s' % self.get_model())
         # Batch norm parameters.
@@ -52,17 +48,17 @@ class MobileNetModel(model_lib.Model):
         # First full convolution...
         cnn.conv(32, 3, 3, 2, 2)
         # Then, MobileNet blocks!
-        mobilenet_block(cnn, 64)
-        mobilenet_block(cnn, 128, 2, 2)
-        mobilenet_block(cnn, 128)
-        mobilenet_block(cnn, 256, 2, 2)
-        mobilenet_block(cnn, 256)
-        mobilenet_block(cnn, 512, 2, 2)
+        mobilenet_block(64)
+        mobilenet_block(128, 2, 2)
+        mobilenet_block(128)
+        mobilenet_block(256, 2, 2)
+        mobilenet_block(256)
+        mobilenet_block(512, 2, 2)
         # Intermediate blocks...
         for i in xrange(self.layer_counts[0]):
-            mobilenet_block(cnn, 512)
+            mobilenet_block(512)
         # Final ones + spatial pooling.
-        mobilenet_block(cnn, 1024, 2, 2)
-        mobilenet_block(cnn, 1024)
+        mobilenet_block(1024, 2, 2)
+        mobilenet_block(1024)
         cnn.spatial_mean()
 
