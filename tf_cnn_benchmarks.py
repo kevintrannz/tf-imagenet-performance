@@ -36,6 +36,11 @@ from tensorflow.python.client import timeline
 from tensorflow.python.layers import convolutional as conv_layers
 from tensorflow.python.layers import core as core_layers
 from tensorflow.python.layers import pooling as pooling_layers
+from tensorflow.contrib import layers as tfc_layers
+
+from tensorflow.contrib.framework.python.ops import variables
+from tensorflow.contrib.layers.python.layers import initializers
+
 from tensorflow.python.ops import data_flow_ops
 from tensorflow.python.platform import gfile
 import cnn_util
@@ -277,7 +282,8 @@ class ConvNetBuilder(object):
              input_layer=None,
              num_channels_in=None,
              batch_norm=None,
-             activation='relu'):
+             activation='relu',
+             weights_initializer=initializers.xavier_initializer()):
         if input_layer is None:
             input_layer = self.top_layer
         if num_channels_in is None:
@@ -295,7 +301,8 @@ class ConvNetBuilder(object):
                         strides=[d_height, d_width],
                         padding=mode,
                         data_format=self.channel_pos,
-                        use_bias=False)
+                        use_bias=False,
+                        kernel_initializer=weights_initializer)
             else:  # Special padding mode for ResNet models
                 if d_height == 1 and d_width == 1:
                     conv = conv_layers.conv2d(
@@ -304,7 +311,8 @@ class ConvNetBuilder(object):
                             strides=[d_height, d_width],
                             padding='SAME',
                             data_format=self.channel_pos,
-                            use_bias=False)
+                            use_bias=False,
+                            kernel_initializer=weights_initializer)
                 else:
                     rate = 1  # Unused (for 'a trous' convolutions)
                     kernel_size_effective = k_height + (k_width - 1) * (rate - 1)
@@ -321,7 +329,78 @@ class ConvNetBuilder(object):
                             strides=[d_height, d_width],
                             padding='VALID',
                             data_format=self.channel_pos,
-                            use_bias=False)
+                            use_bias=False,
+                            kernel_initializer=weights_initializer)
+            if batch_norm is None:
+                batch_norm = self.use_batch_norm
+            if not batch_norm:
+                biases = tf.get_variable(
+                        'biases', [num_out_channels], self.data_type,
+                        tf.constant_initializer(0.0))
+                biased = tf.reshape(
+                        tf.nn.bias_add(
+                                conv, biases, data_format=self.data_format),
+                        conv.get_shape())
+            else:
+                self.top_layer = conv
+                self.top_size = num_out_channels
+                biased = self.batch_norm(**self.batch_norm_config)
+            if activation == 'relu':
+                conv1 = tf.nn.relu(biased)
+            elif activation == 'linear' or activation is None:
+                conv1 = biased
+            elif activation == 'tanh':
+                conv1 = tf.nn.tanh(biased)
+            else:
+                raise KeyError('Invalid activation type \'%s\'' % activation)
+            self.top_layer = conv1
+            self.top_size = num_out_channels
+            return conv1
+
+    def conv_dw(self,
+                k_height,
+                k_width,
+                d_height=1,
+                d_width=1,
+                mode='SAME',
+                input_layer=None,
+                num_channels_in=None,
+                batch_norm=None,
+                activation='relu',
+                weights_initializer=initializers.xavier_initializer()):
+        """Depthwise convolution layer.
+        """
+        if input_layer is None:
+            input_layer = self.top_layer
+        if num_channels_in is None:
+            num_channels_in = self.top_size
+        num_out_channels = num_channels_in
+        name = 'conv_dw' + str(self.counts['conv_dw'])
+        self.counts['conv_dw'] += 1
+        with tf.variable_scope(name):
+            strides = [1, d_height, d_width, 1]
+            if self.data_format == 'NCHW':
+                strides = [strides[0], strides[3], strides[1], strides[2]]
+
+            def depthwise_conv2d(inputs):
+                weights = tf.get_variable(
+                    'weights',
+                    shape=[k_height, k_width, num_channels_in, 1],
+                    dtype=self.data_type,
+                    initializer=weights_initializer,
+                    regularizer=None,
+                    trainable=True)
+                net = tf.nn.depthwise_conv2d_native(
+                    inputs,
+                    filter=weights,
+                    strides=strides,
+                    padding=mode,
+                    data_format=self.data_format,
+                    name=None
+                )
+                return net
+            conv = depthwise_conv2d(input_layer)
+
             if batch_norm is None:
                 batch_norm = self.use_batch_norm
             if not batch_norm:
