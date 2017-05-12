@@ -390,7 +390,7 @@ class ConvNetBuilder(object):
                     initializer=weights_initializer,
                     regularizer=None,
                     trainable=True)
-                net = tf.nn.depthwise_conv2d_native(
+                net = tf.nn.depthwise_conv2d(
                     inputs,
                     filter=weights,
                     strides=strides,
