@@ -56,7 +56,7 @@ nohup python -u tf_cnn_benchmarks.py \
     --num_batches=1000000000000 \
     --summary_verbosity=1 \
     --save_summaries_steps=600 \
-    --save_model_secs=600 \
+    --save_model_secs=1200 \
     --num_gpus=1 \
     --weight_decay=0.00001 \
     --learning_rate=0.005 \
@@ -65,3 +65,16 @@ nohup python -u tf_cnn_benchmarks.py \
     --optimizer=rmsprop \
     --batch_size=32 &
 
+
+
+python -u tf_cnn_benchmarks.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${TRAIN_DIR} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --model=mobilenet \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=4 \
+    --batch_size=1
