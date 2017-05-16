@@ -39,6 +39,13 @@ arg_scopes_map = {'vgg_a': vgg.vgg_arg_scope,
                   'inception_v4': inception.inception_v4_arg_scope,
                   }
 
+models_map = {'vgg_a': vgg.Vgg11Model(),
+              'vgg_16': vgg.Vgg16Model(),
+              'vgg_19': vgg.Vgg19Model(),
+              'inception_v3': inception.Inceptionv3Model(),
+              'inception_v4': inception.Inceptionv4Model(),
+              }
+
 
 def get_network_fn(name, num_classes, is_training=False, data_format='NCHW', **kwargs):
     """Returns a network_fn such as `logits, end_points = network_fn(images)`.
