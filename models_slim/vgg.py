@@ -51,7 +51,6 @@ slim = tf.contrib.slim
 # VGG classes.
 # =========================================================================== #
 class Vgg11Model(model.Model):
-
     def __init__(self):
         super(Vgg11Model, self).__init__('vgg11', 224, 64, 0.005)
 
@@ -64,7 +63,6 @@ class Vgg11Model(model.Model):
 
 
 class Vgg16Model(model.Model):
-
     def __init__(self):
         super(Vgg16Model, self).__init__('vgg16', 224, 64, 0.005)
 
@@ -77,7 +75,6 @@ class Vgg16Model(model.Model):
 
 
 class Vgg19Model(model.Model):
-
     def __init__(self):
         super(Vgg19Model, self).__init__('vgg19', 224, 64, 0.005)
 

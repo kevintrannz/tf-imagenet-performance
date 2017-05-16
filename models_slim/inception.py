@@ -18,6 +18,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import tensorflow as tf
+from models import model
+
 # pylint: disable=unused-import
 # from models_slim.inception_resnet_v2 import inception_resnet_v2
 # from models_slim.inception_resnet_v2 import inception_resnet_v2_arg_scope
@@ -34,3 +37,40 @@ from models_slim.inception_v4 import inception_v4
 from models_slim.inception_v4 import inception_v4_arg_scope
 from models_slim.inception_v4 import inception_v4_base
 # pylint: enable=unused-import
+
+slim = tf.contrib.slim
+
+
+# =========================================================================== #
+# Inception classes.
+# =========================================================================== #
+class Inceptionv3Model(model.Model):
+
+    def __init__(self):
+        super(Inceptionv3Model, self).__init__('inception3', 299, 32, 0.005)
+
+    def inference(self, images, num_classes,
+                  is_training=True, data_format='NCHW', data_type=tf.float32):
+        # Define VGG using functional slim definition
+        arg_scope = inception_v3_arg_scope(is_training=is_training, data_format=data_format)
+        with slim.arg_scope(arg_scope):
+            return inception_v3(images, num_classes, is_training=is_training)
+
+
+class Inceptionv4Model(model.Model):
+    def __init__(self):
+        super(Inceptionv4Model, self).__init__('inception4', 299, 32, 0.005)
+
+    def inference(self, images, num_classes,
+                  is_training=True, data_format='NCHW', data_type=tf.float32):
+        # Define VGG using functional slim definition
+        arg_scope = inception_v4_arg_scope(is_training=is_training, data_format=data_format)
+        with slim.arg_scope(arg_scope):
+            return inception_v4(images, num_classes, is_training=is_training)
+
+
+
+# class GooglenetModel(model.Model):
+
+#     def __init__(self):
+#         super(GooglenetModel, self).__init__('googlenet', 224, 32, 0.005)
