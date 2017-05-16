@@ -24,15 +24,15 @@ import cnn_util
 FLAGS = tf.flags.FLAGS
 
 # DISTORT bounding box parameters.
-MIN_OBJECT_COVERED = 0.1
-ASPECT_RATIO_RANGE = [0.75, 1.33]
-AREA_RANGE = [0.05, 1.0]
+MIN_OBJECT_COVERED = 0.3
+ASPECT_RATIO_RANGE = [0.8, 1.2]
+AREA_RANGE = [0.3, 1.0]
 MAX_ATTEMPTS = 100
 # COLOR DISTORTION parameters.
-MAX_BRIGHTNESS = 32. / 255.
-MAX_HUE = 0.2
-RANGE_SATURATION = (0.5, 1.5)
-RANGE_CONTRAST = (0.5, 1.5)
+MAX_BRIGHTNESS = 16. / 255.
+MAX_HUE = 0.1
+RANGE_SATURATION = (0.75, 1.25)
+RANGE_CONTRAST = (0.75, 1.25)
 
 
 def parse_example_proto(example_serialized):
