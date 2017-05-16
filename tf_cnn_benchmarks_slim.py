@@ -40,7 +40,7 @@ import datasets
 import preprocessing
 import variable_mgr
 
-from models import model_config
+from models_slim import nets_factory
 from cnn_builder import ConvNetBuilder
 
 tf.flags.DEFINE_string('model', 'trivial', 'name of the model to run')
@@ -916,11 +916,16 @@ class BenchmarkCNN(object):
                 images = tf.transpose(images, [0, 3, 1, 2])
             if input_data_type != data_type:
                 images = tf.cast(images, data_type)
+
+            # Build CNN!!!!
+            network_fn = get_network_fn(name, num_classes,
+                                        is_training=False, data_format='NCHW')
             network = ConvNetBuilder(
                     images, input_nchan, phase_train, self.data_format, data_type)
             self.model_conf.add_inference(network)
             # Add the final fully-connected class layer
             logits = network.affine(nclass, activation='linear')
+
             if not phase_train:
                 top_1_op = tf.reduce_sum(
                         tf.cast(tf.nn.in_top_k(logits, labels, 1), data_type))

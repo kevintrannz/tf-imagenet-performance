@@ -42,10 +42,56 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
+from models import model
 
 slim = tf.contrib.slim
 
 
+# =========================================================================== #
+# VGG classes.
+# =========================================================================== #
+class Vgg11Model(model.Model):
+
+    def __init__(self):
+        super(Vgg11Model, self).__init__('vgg11', 224, 64, 0.005)
+
+    def inference(self, images, num_classes,
+                  is_training=True, data_format='NCHW', data_type=tf.float32):
+        # Define VGG using functional slim definition
+        arg_scope = vgg_arg_scope(is_training=is_training, data_format=data_format)
+        with slim.arg_scope(arg_scope):
+            return vgg_a(images, num_classes, is_training=is_training)
+
+
+class Vgg16Model(model.Model):
+
+    def __init__(self):
+        super(Vgg16Model, self).__init__('vgg16', 224, 64, 0.005)
+
+    def inference(self, images, num_classes,
+                  is_training=True, data_format='NCHW', data_type=tf.float32):
+        # Define VGG using functional slim definition
+        arg_scope = vgg_arg_scope(is_training=is_training, data_format=data_format)
+        with slim.arg_scope(arg_scope):
+            return vgg_16(images, num_classes, is_training=is_training)
+
+
+class Vgg19Model(model.Model):
+
+    def __init__(self):
+        super(Vgg19Model, self).__init__('vgg19', 224, 64, 0.005)
+
+    def inference(self, images, num_classes,
+                  is_training=True, data_format='NCHW', data_type=tf.float32):
+        # Define VGG using functional slim definition
+        arg_scope = vgg_arg_scope(is_training=is_training, data_format=data_format)
+        with slim.arg_scope(arg_scope):
+            return vgg_19(images, num_classes, is_training=is_training)
+
+
+# =========================================================================== #
+# Functional definition.
+# =========================================================================== #
 def vgg_arg_scope(weight_decay=0.0005, data_format='NCHW'):
     """Defines the VGG arg scope.
 
