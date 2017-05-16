@@ -23,6 +23,17 @@ import cnn_util
 
 FLAGS = tf.flags.FLAGS
 
+# DISTORT bounding box parameters.
+MIN_OBJECT_COVERED = 0.1
+ASPECT_RATIO_RANGE = [0.75, 1.33]
+AREA_RANGE = [0.05, 1.0]
+MAX_ATTEMPTS = 100
+# COLOR DISTORTION parameters.
+MAX_BRIGHTNESS = 32. / 255.
+MAX_HUE = 0.2
+RANGE_SATURATION = (0.5, 1.5)
+RANGE_CONTRAST = (0.5, 1.5)
+
 
 def parse_example_proto(example_serialized):
     """Parses an Example proto containing a training example of an image.
@@ -61,20 +72,17 @@ def parse_example_proto(example_serialized):
     """
     # Dense features in Example proto.
     feature_map = {
-            'image/encoded': tf.FixedLenFeature([], dtype=tf.string,
-                                                default_value=''),
-            'image/class/label': tf.FixedLenFeature([1], dtype=tf.int64,
-                                                    default_value=-1),
-            'image/class/text': tf.FixedLenFeature([], dtype=tf.string,
-                                                   default_value=''),
+        'image/encoded': tf.FixedLenFeature([], dtype=tf.string, default_value=''),
+        'image/class/label': tf.FixedLenFeature([1], dtype=tf.int64, default_value=-1),
+        'image/class/text': tf.FixedLenFeature([], dtype=tf.string, default_value=''),
     }
     sparse_float32 = tf.VarLenFeature(dtype=tf.float32)
     # Sparse features in Example proto.
     feature_map.update(
-            {k: sparse_float32 for k in ['image/object/bbox/xmin',
-                                         'image/object/bbox/ymin',
-                                         'image/object/bbox/xmax',
-                                         'image/object/bbox/ymax']})
+        {k: sparse_float32 for k in ['image/object/bbox/xmin',
+                                     'image/object/bbox/ymin',
+                                     'image/object/bbox/xmax',
+                                     'image/object/bbox/ymax']})
 
     features = tf.parse_single_example(example_serialized, feature_map)
     label = tf.cast(features['image/class/label'], dtype=tf.int32)
@@ -83,15 +91,12 @@ def parse_example_proto(example_serialized):
     ymin = tf.expand_dims(features['image/object/bbox/ymin'].values, 0)
     xmax = tf.expand_dims(features['image/object/bbox/xmax'].values, 0)
     ymax = tf.expand_dims(features['image/object/bbox/ymax'].values, 0)
-
     # Note that we impose an ordering of (y, x) just to make life difficult.
     bbox = tf.concat([ymin, xmin, ymax, xmax], 0)
-
     # Force the variable number of bounding boxes into the shape
     # [1, num_boxes, coords].
     bbox = tf.expand_dims(bbox, 0)
     bbox = tf.transpose(bbox, [0, 2, 1])
-
     return features['image/encoded'], label, bbox, features['image/class/text']
 
 
@@ -114,7 +119,6 @@ def decode_jpeg(image_buffer, scope=None):  # , dtype=tf.float32):
         image = tf.image.decode_jpeg(image_buffer, channels=3,
                                      fancy_upscaling=False,
                                      dct_method='INTEGER_FAST')
-
         # image = tf.Print(image, [tf.shape(image)], 'Image shape: ')
         return image
 
@@ -139,36 +143,37 @@ def eval_image(image, height, width, bbox, thread_id, resize):
                                                                                                             width)
         else:
             sample_distorted_bounding_box = tf.image.sample_distorted_bounding_box(
-                    tf.shape(image),
-                    bounding_boxes=bbox,
-                    min_object_covered=0.1,
-                    aspect_ratio_range=[0.75, 1.33],
-                    area_range=[0.05, 1.0],
-                    max_attempts=100,
-                    use_image_if_no_bounding_boxes=True)
+                tf.shape(image),
+                bounding_boxes=bbox,
+                min_object_covered=MIN_OBJECT_COVERED,
+                aspect_ratio_range=ASPECT_RATIO_RANGE,
+                area_range=AREA_RANGE,
+                max_attempts=MAX_ATTEMPTS,
+                use_image_if_no_bounding_boxes=True)
+
             bbox_begin, bbox_size, _ = sample_distorted_bounding_box
             # Crop the image to the specified bounding box.
             distorted_image = tf.slice(image, bbox_begin, bbox_size)
             resize_method = {
-                    'nearest': tf.image.ResizeMethod.NEAREST_NEIGHBOR,
-                    'bilinear': tf.image.ResizeMethod.BILINEAR,
-                    'bicubic': tf.image.ResizeMethod.BICUBIC,
-                    'area': tf.image.ResizeMethod.AREA
+                'nearest': tf.image.ResizeMethod.NEAREST_NEIGHBOR,
+                'bilinear': tf.image.ResizeMethod.BILINEAR,
+                'bicubic': tf.image.ResizeMethod.BICUBIC,
+                'area': tf.image.ResizeMethod.AREA
             }[resize]
             # This resizing operation may distort the images because the aspect
             # ratio is not respected.
             if cnn_util.tensorflow_version() >= 11:
                 distorted_image = tf.image.resize_images(
-                        distorted_image, [height, width],
-                        resize_method,
-                        align_corners=False)
+                    distorted_image, [height, width],
+                    resize_method,
+                    align_corners=False)
             else:
                 distorted_image = tf.image.resize_images(
-                        distorted_image, height, width, resize_method, align_corners=False)
+                    distorted_image, height, width, resize_method, align_corners=False)
         distorted_image.set_shape([height, width, 3])
         if not thread_id:
             tf.summary.image(
-                    'cropped_resized_image', tf.expand_dims(distorted_image, 0))
+                'cropped_resized_image', tf.expand_dims(distorted_image, 0))
         image = distorted_image
     return image
 
@@ -205,8 +210,7 @@ def distort_image(image, height, width, bbox, thread_id=0, scope=None):
 
         # Display the bounding box in the first thread only.
         if not thread_id:
-            image_with_box = tf.image.draw_bounding_boxes(tf.expand_dims(image, 0),
-                                                                                                        bbox)
+            image_with_box = tf.image.draw_bounding_boxes(tf.expand_dims(image, 0), bbox)
             tf.summary.image(
                 'image_with_bounding_boxes', image_with_box)
 
@@ -218,17 +222,17 @@ def distort_image(image, height, width, bbox, thread_id=0, scope=None):
     # bounding box. If no box is supplied, then we assume the bounding box is
     # the entire image.
         sample_distorted_bounding_box = tf.image.sample_distorted_bounding_box(
-                tf.shape(image),
-                bounding_boxes=bbox,
-                min_object_covered=0.1,
-                aspect_ratio_range=[0.75, 1.33],
-                area_range=[0.05, 1.0],
-                max_attempts=100,
-                use_image_if_no_bounding_boxes=True)
+            tf.shape(image),
+            bounding_boxes=bbox,
+            min_object_covered=MIN_OBJECT_COVERED,
+            aspect_ratio_range=ASPECT_RATIO_RANGE,
+            area_range=AREA_RANGE,
+            max_attempts=MAX_ATTEMPTS,
+            use_image_if_no_bounding_boxes=True)
         bbox_begin, bbox_size, distort_bbox = sample_distorted_bounding_box
         if not thread_id:
             image_with_distorted_box = tf.image.draw_bounding_boxes(
-                    tf.expand_dims(image, 0), distort_bbox)
+                tf.expand_dims(image, 0), distort_bbox)
             tf.summary.image(
                 'images_with_distorted_bounding_box',
                 image_with_distorted_box)
@@ -243,31 +247,27 @@ def distort_image(image, height, width, bbox, thread_id=0, scope=None):
         resize_method = thread_id % 4
         if cnn_util.tensorflow_version() >= 11:
             distorted_image = tf.image.resize_images(
-                    distorted_image, [height, width], resize_method, align_corners=False)
+                distorted_image, [height, width], resize_method, align_corners=False)
         else:
             distorted_image = tf.image.resize_images(
-                    distorted_image, height, width, resize_method, align_corners=False)
+                distorted_image, height, width, resize_method, align_corners=False)
         # Restore the shape since the dynamic slice based upon the bbox_size loses
         # the third dimension.
         distorted_image.set_shape([height, width, 3])
         if not thread_id:
-            tf.summary.image(
-                'cropped_resized_image',
-                tf.expand_dims(distorted_image, 0))
+            tf.summary.image('cropped_resized_image',
+                             tf.expand_dims(distorted_image, 0))
 
         # Randomly flip the image horizontally.
         distorted_image = tf.image.random_flip_left_right(distorted_image)
-
         # Randomly distort the colors.
         distorted_image = distort_color(distorted_image, thread_id)
-
         # Note: This ensures the scaling matches the output of eval_image
         distorted_image *= 256
 
         if not thread_id:
-            tf.summary.image(
-                'final_distorted_image',
-                tf.expand_dims(distorted_image, 0))
+            tf.summary.image('final_distorted_image',
+                             tf.expand_dims(distorted_image, 0))
         return distorted_image
 
 
@@ -292,15 +292,23 @@ def distort_color(image, thread_id=0, scope=None):
         color_ordering = thread_id % 2
 
         if color_ordering == 0:
-            image = tf.image.random_brightness(image, max_delta=32. / 255.)
-            image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
-            image = tf.image.random_hue(image, max_delta=0.2)
-            image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
+            image = tf.image.random_brightness(image, max_delta=MAX_BRIGHTNESS)
+            image = tf.image.random_saturation(image,
+                                               lower=RANGE_SATURATION[0],
+                                               upper=RANGE_SATURATION[1])
+            image = tf.image.random_hue(image, max_delta=MAX_HUE)
+            image = tf.image.random_contrast(image,
+                                             lower=RANGE_CONTRAST[0],
+                                             upper=RANGE_CONTRAST[1])
         elif color_ordering == 1:
-            image = tf.image.random_brightness(image, max_delta=32. / 255.)
-            image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
-            image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
-            image = tf.image.random_hue(image, max_delta=0.2)
+            image = tf.image.random_brightness(image, max_delta=MAX_BRIGHTNESS)
+            image = tf.image.random_contrast(image,
+                                             lower=RANGE_CONTRAST[0],
+                                             upper=RANGE_CONTRAST[1])
+            image = tf.image.random_saturation(image,
+                                               wer=RANGE_SATURATION[0],
+                                               upper=RANGE_SATURATION[1])
+            image = tf.image.random_hue(image, max_delta=MAX_HUE)
 
         # The random_* ops do not necessarily clamp.
         image = tf.clip_by_value(image, 0.0, 1.0)
@@ -357,12 +365,12 @@ class ImagePreprocessor(object):
             images = [[] for i in range(self.device_count)]
             labels = [[] for i in range(self.device_count)]
             record_input = data_flow_ops.RecordInput(
-                    file_pattern=dataset.tf_record_pattern(subset),
-                    seed=301,
-                    parallelism=64,
-                    buffer_size=10000,
-                    batch_size=self.batch_size,
-                    name='record_input')
+                file_pattern=dataset.tf_record_pattern(subset),
+                seed=301,
+                parallelism=64,
+                buffer_size=10000,
+                batch_size=self.batch_size,
+                name='record_input')
             records = record_input.get_yield_op()
             records = tf.split(records, self.batch_size, 0)
             records = [tf.reshape(record, []) for record in records]
