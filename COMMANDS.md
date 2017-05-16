@@ -41,14 +41,16 @@ python tf_cnn_benchmarks.py \
 # MobileNets training
 # =========================================================================== #
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
-TRAIN_DIR=/media/paul/DataExt4/ImageNet/training/logs/mobilenet_001
+TRAIN_DIR=/media/paul/DataExt4/ImageNet/training/logs/mobilenet_002
 
 CUDA_VISIBLE_DEVICES=0,1
 
-nohup python -u tf_cnn_benchmarks.py \
+DATASET_DIR=/media/imagenet/dataset
+TRAIN_DIR=/media/imagenet/training/logs/mobilenet_003
+
+CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks.py \
     --local_parameter_device=cpu \
     --train_dir=${TRAIN_DIR} \
-    --pretrain_dir=${TRAIN_DIR} \
     --data_dir=${DATASET_DIR} \
     --data_name=imagenet \
     --model=mobilenet \
@@ -57,16 +59,15 @@ nohup python -u tf_cnn_benchmarks.py \
     --summary_verbosity=1 \
     --save_summaries_steps=1000 \
     --save_model_secs=1800 \
-    --num_gpus=1 \
-    --weight_decay=0.00001 \
-    --learning_rate=0.005 \
+    --num_gpus=2 \
+    --weight_decay=0.0001 \
+    --learning_rate=0.1 \
     --learning_rate_decay_factor=0.94 \
     --num_epochs_per_decay=2.0 \
     --optimizer=rmsprop \
     --batch_size=64 &
 
-DATASET_DIR=/media/imagenet/dataset
-TRAIN_DIR=/media/imagenet/training/logs/mobilenet_001
+--pretrain_dir=${TRAIN_DIR} \
 
 nohup python -u tf_cnn_benchmarks.py \
     --local_parameter_device=cpu \
