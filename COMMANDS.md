@@ -77,4 +77,5 @@ python -u tf_cnn_benchmarks.py \
     --variable_update=parameter_server \
     --summary_verbosity=1 \
     --num_gpus=4 \
-    --batch_size=1
+    --num_batches=391 \
+    --batch_size=32
