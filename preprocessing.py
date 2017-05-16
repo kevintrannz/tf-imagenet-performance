@@ -306,7 +306,7 @@ def distort_color(image, thread_id=0, scope=None):
                                              lower=RANGE_CONTRAST[0],
                                              upper=RANGE_CONTRAST[1])
             image = tf.image.random_saturation(image,
-                                               wer=RANGE_SATURATION[0],
+                                               lower=RANGE_SATURATION[0],
                                                upper=RANGE_SATURATION[1])
             image = tf.image.random_hue(image, max_delta=MAX_HUE)
 
