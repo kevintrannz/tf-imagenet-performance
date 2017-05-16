@@ -25,6 +25,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
+from models_slim import custom_layers
 
 slim = tf.contrib.slim
 
@@ -55,6 +56,8 @@ def inception_arg_scope(weight_decay=0.00004,
         'updates_collections': tf.GraphKeys.UPDATE_OPS,
         # fuse BN operation.
         'fused': True,
+        # Data format.
+        'data_format': data_format,
     }
     if use_batch_norm:
         normalizer_fn = slim.batch_norm
@@ -70,5 +73,10 @@ def inception_arg_scope(weight_decay=0.00004,
                 weights_initializer=slim.variance_scaling_initializer(),
                 activation_fn=tf.nn.relu,
                 normalizer_fn=normalizer_fn,
-                normalizer_params=normalizer_params) as sc:
-            return sc
+                normalizer_params=normalizer_params):
+            # Data format scope...
+            with slim.arg_scope([slim.conv2d, slim.max_pool2d, slim.avg_pool2d,
+                                 custom_layers.concat_channels,
+                                 custom_layers.channel_to_last],
+                                data_format=data_format) as sc:
+                return sc
