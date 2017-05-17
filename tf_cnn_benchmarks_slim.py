@@ -581,6 +581,7 @@ class BenchmarkCNN(object):
         """Evaluate the model from a checkpoint using validation dataset."""
         (enqueue_ops, fetches) = self._build_model()
         saver = tf.train.Saver(tf.global_variables())
+        print(tf.global_variables())
         summary_writer = tf.summary.FileWriter(FLAGS.eval_dir,
                                                tf.get_default_graph())
         target = ''
