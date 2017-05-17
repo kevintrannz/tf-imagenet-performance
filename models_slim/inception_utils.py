@@ -59,6 +59,8 @@ def inception_arg_scope(weight_decay=0.00004,
         # 'fused': True,
         # Data format.
         'data_format': data_format,
+        # Training???
+        'is_training': is_training,
     }
     if use_batch_norm:
         normalizer_fn = slim.batch_norm
