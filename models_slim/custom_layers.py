@@ -192,6 +192,19 @@ def spatial_squeeze(inputs, data_format='NHWC', scope=None):
         return net
 
 
+@add_arg_scope
+def ksize_for_squeezing(inputs, default_ksize=[1024, 1024], data_format='NHWC'):
+    """Get the correct kernel size for squeezing input tensor.
+    """
+    shape = inputs.get_shape().as_list()
+    kshape = shape[1:3] if data_format == 'NHWC' else shape[2:]
+    if kshape[0] is None or kshape[1] is None:
+        kernel_size_out = default_ksize
+    else:
+        kernel_size_out = [min(kshape[0], default_ksize[0]),
+                           min(kshape[1], default_ksize[1])]
+    return kernel_size_out
+
 # =========================================================================== #
 # Separable convolution 2d with difference padding.
 # =========================================================================== #

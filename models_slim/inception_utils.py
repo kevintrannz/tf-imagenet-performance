@@ -78,6 +78,7 @@ def inception_arg_scope(weight_decay=0.00004,
             # Data format scope...
             with slim.arg_scope([slim.conv2d, slim.max_pool2d, slim.avg_pool2d,
                                  custom_layers.concat_channels,
-                                 custom_layers.channel_to_last],
+                                 custom_layers.channel_to_last,
+                                 custom_layers.ksize_for_squeezing],
                                 data_format=data_format) as sc:
                 return sc
