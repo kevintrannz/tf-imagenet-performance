@@ -94,12 +94,12 @@ def parse_numpy_printoption(kv_str):
 
 
 def main(unused_argv):
-    if not FLAGS.file_name:
-        print("Usage: inspect_checkpoint --file_name=checkpoint_file_name "
+    if not FLAGS.filename:
+        print("Usage: inspect_checkpoint --filename=checkpoint_file_name "
               "[--tensor_name=tensor_to_print]")
         sys.exit(1)
     else:
-        print_tensors_in_checkpoint_file(FLAGS.file_name, FLAGS.tensor_name,
+        print_tensors_in_checkpoint_file(FLAGS.filename, FLAGS.tensor_name,
                                          FLAGS.all_tensors)
 
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     parser.register("type", "bool", lambda v: v.lower() == "true")
     parser.add_argument(
             "--filename", type=str, default="", help="Checkpoint filename. "
-            "Note, if using Checkpoint V2 format, file_name is the "
+            "Note, if using Checkpoint V2 format, filename is the "
             "shared prefix between all files in the checkpoint.")
     parser.add_argument(
             "--tensor_name",
