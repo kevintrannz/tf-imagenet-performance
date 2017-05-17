@@ -380,6 +380,14 @@ def get_perf_timing_str(batch_size, step_train_times, scale=1):
 
 
 def load_checkpoint(saver, sess, ckpt_dir):
+    # Pointing directly to a file?
+    if os.path.isfile(ckpt_dir):
+        saver.restore(sess, ckpt_dir)
+        log_fn('Successfully loaded model from %s.' % ckpt_dir)
+        global_step = 0
+        return global_step
+
+    # Other option: log directory!
     ckpt = tf.train.get_checkpoint_state(ckpt_dir)
     if ckpt and ckpt.model_checkpoint_path:
         if os.path.isabs(ckpt.model_checkpoint_path):

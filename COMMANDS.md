@@ -157,3 +157,18 @@ python -u tf_cnn_benchmarks_slim.py \
     --num_epochs_per_decay=2.0 \
     --optimizer=rmsprop \
     --batch_size=32
+
+
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v3.ckpt
+python -u tf_cnn_benchmarks_slim.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${CHECKPOINT_PATH} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --model=inceptionv3 \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=1 \
+    --num_batches=391 \
+    --batch_size=32
