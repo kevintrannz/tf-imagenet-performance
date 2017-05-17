@@ -201,6 +201,12 @@ FLAGS = tf.flags.FLAGS
 
 log_fn = print   # tf.logging.info
 
+# TF AND NP RANDOM SEEDS
+TF_RANDOM_SEED = 1234
+NP_RANDOM_SEED = 4321
+TF_RANDOM_SEED = int(time.time() * 10)
+NP_RANDOM_SEED = int(time.time() * 100)
+
 
 class GlobalStepWatcher(threading.Thread):
     """A helper class for globe_step.
@@ -402,7 +408,9 @@ class BenchmarkCNN(object):
 
     def __init__(self):
         self.model = FLAGS.model
-        self.model_conf = model_config.get_model_config(self.model)
+        # self.model_conf = model_config.get_model_config(self.model)
+        # Slim-based CNN model.
+        self.model_conf = nets_factory.models_map[self.model]
         self.trace_filename = FLAGS.trace_file
         self.data_format = FLAGS.data_format
         self.num_batches = FLAGS.num_batches
@@ -731,8 +739,8 @@ class BenchmarkCNN(object):
         data_type = tf.float32
         input_data_type = tf.float32
         input_nchan = 3
-        tf.set_random_seed(1234)
-        np.random.seed(4321)
+        tf.set_random_seed(TF_RANDOM_SEED)
+        np.random.seed(NP_RANDOM_SEED)
         phase_train = not (FLAGS.eval or FLAGS.forward_only)
 
         log_fn('Generating model')
@@ -917,21 +925,20 @@ class BenchmarkCNN(object):
             if input_data_type != data_type:
                 images = tf.cast(images, data_type)
 
-            # Build CNN!!!!
-            network_fn = get_network_fn(name, num_classes,
-                                        is_training=False, data_format='NCHW')
-            network = ConvNetBuilder(
-                    images, input_nchan, phase_train, self.data_format, data_type)
-            self.model_conf.add_inference(network)
-            # Add the final fully-connected class layer
-            logits = network.affine(nclass, activation='linear')
-
+            # Build CNN from slim model!
+            logits, end_points = \
+                self.model_conf.inference(images, nclass,
+                                          is_training=phase_train,
+                                          data_format=self.data_format,
+                                          data_type=data_type)
+            # Top-1 and top-5 metrics in eval.
             if not phase_train:
                 top_1_op = tf.reduce_sum(
                         tf.cast(tf.nn.in_top_k(logits, labels, 1), data_type))
                 top_5_op = tf.reduce_sum(
                         tf.cast(tf.nn.in_top_k(logits, labels, 5), data_type))
                 return (logits, top_1_op, top_5_op)
+            # Standard loss function + L2-regularisation.
             loss = loss_function(logits, labels)
             params = self.variable_mgr.trainable_variables_on_device(device_num)
             l2_loss = tf.add_n([tf.nn.l2_loss(v) for v in params])

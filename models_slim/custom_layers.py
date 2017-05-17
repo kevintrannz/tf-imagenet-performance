@@ -191,6 +191,7 @@ def spatial_squeeze(inputs, data_format='NHWC', scope=None):
         net = tf.squeeze(inputs, axes)
         return net
 
+
 # =========================================================================== #
 # Separable convolution 2d with difference padding.
 # =========================================================================== #
