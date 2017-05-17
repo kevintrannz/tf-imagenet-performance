@@ -201,6 +201,12 @@ FLAGS = tf.flags.FLAGS
 
 log_fn = print   # tf.logging.info
 
+# TF AND NP RANDOM SEEDS
+TF_RANDOM_SEED = 1234
+NP_RANDOM_SEED = 4321
+TF_RANDOM_SEED = int(time.time() * 1.1)
+NP_RANDOM_SEED = int(time.time() * 0.7)
+
 
 class GlobalStepWatcher(threading.Thread):
     """A helper class for globe_step.
@@ -731,8 +737,8 @@ class BenchmarkCNN(object):
         data_type = tf.float32
         input_data_type = tf.float32
         input_nchan = 3
-        tf.set_random_seed(1234)
-        np.random.seed(4321)
+        tf.set_random_seed(TF_RANDOM_SEED)
+        np.random.seed(NP_RANDOM_SEED)
         phase_train = not (FLAGS.eval or FLAGS.forward_only)
 
         log_fn('Generating model')
