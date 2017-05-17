@@ -149,9 +149,9 @@ def eval_image(image, height, width, bbox, thread_id, resize):
             if height and width:
                 # Resize the image to the specified height and width.
                 image = tf.expand_dims(image, 0)
-                image = tf.image.resize_bilinear(image, [height, width],
-                                                 align_corners=False)
-                image.set_shape([height, width, 3])
+                distorted_image = tf.image.resize_bilinear(image, [height, width],
+                                                           align_corners=False)
+                distorted_image.set_shape([height, width, 3])
         else:
             sample_distorted_bounding_box = tf.image.sample_distorted_bounding_box(
                 tf.shape(image),
