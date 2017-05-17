@@ -22,12 +22,16 @@ from models_slim import inception
 # from models_slim import resnet_v1
 # from models_slim import resnet_v2
 from models_slim import vgg
+from models_slim import vgg_fc
 
 slim = tf.contrib.slim
 
-networks_map = {'vgg_a': vgg.vgg_a,
-                'vgg_16': vgg.vgg_16,
-                'vgg_19': vgg.vgg_19,
+networks_map = {'vgg11': vgg.vgg_a,
+                'vgg16': vgg.vgg_16,
+                'vgg19': vgg.vgg_19,
+                'vgg11_fc': vgg_fc.vgg_a,
+                'vgg16_fc': vgg_fc.vgg_16,
+                'vgg19_fc': vgg_fc.vgg_19,
                 'inception_v3': inception.inception_v3,
                 'inception_v4': inception.inception_v4,
                 }
@@ -35,15 +39,21 @@ networks_map = {'vgg_a': vgg.vgg_a,
 arg_scopes_map = {'vgg_a': vgg.vgg_arg_scope,
                   'vgg_16': vgg.vgg_arg_scope,
                   'vgg_19': vgg.vgg_arg_scope,
+                  'vgg11_fc': vgg_fc.vgg_arg_scope,
+                  'vgg16_fc': vgg_fc.vgg_arg_scope,
+                  'vgg19_fc': vgg_fc.vgg_arg_scope,
                   'inception_v3': inception.inception_v3_arg_scope,
                   'inception_v4': inception.inception_v4_arg_scope,
                   }
 
-models_map = {'vgg_a': vgg.Vgg11Model(),
-              'vgg_16': vgg.Vgg16Model(),
-              'vgg_19': vgg.Vgg19Model(),
-              'inception_v3': inception.Inceptionv3Model(),
-              'inception_v4': inception.Inceptionv4Model(),
+models_map = {'vgg11': vgg.Vgg11Model(),
+              'vgg16': vgg.Vgg16Model(),
+              'vgg19': vgg.Vgg19Model(),
+              'vgg11_fc': vgg_fc.Vgg11FCModel(),
+              'vgg16_fc': vgg_fc.Vgg16FCModel(),
+              'vgg19_fc': vgg_fc.Vgg19FCModel(),
+              'inceptionv3': inception.Inceptionv3Model(),
+              'inceptionv4': inception.Inceptionv4Model(),
               }
 
 
