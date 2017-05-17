@@ -126,8 +126,12 @@ python -u tf_cnn_benchmarks.py \
 # =========================================================================== #
 # Benchmark Original vs Slim
 # =========================================================================== #
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+DATASET_DIR=/media/imagenet/dataset
+
 python -u tf_cnn_benchmarks.py \
     --local_parameter_device=cpu \
+    --data_dir=${DATASET_DIR} \
     --data_name=imagenet \
     --model=vgg16 \
     --variable_update=parameter_server \
@@ -142,8 +146,9 @@ python -u tf_cnn_benchmarks.py \
 
 python -u tf_cnn_benchmarks_slim.py \
     --local_parameter_device=cpu \
+    --data_dir=${DATASET_DIR} \
     --data_name=imagenet \
-    --model=vgg_16 \
+    --model=vgg16 \
     --variable_update=parameter_server \
     --num_gpus=1 \
     --weight_decay=0.00001 \
