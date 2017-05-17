@@ -37,6 +37,7 @@ from models_slim.inception_v4 import inception_v4
 from models_slim.inception_v4 import inception_v4_arg_scope
 from models_slim.inception_v4 import inception_v4_base
 # pylint: enable=unused-import
+from models_slim.inception_utils import inception_pre_rescaling
 
 slim = tf.contrib.slim
 
@@ -56,6 +57,9 @@ class Inceptionv3Model(model.Model):
         with slim.arg_scope(arg_scope):
             return inception_v3(images, num_classes, is_training=is_training)
 
+    def pre_rescaling(images, is_training=True):
+        return inception_pre_rescaling(images, is_training)
+
 
 class Inceptionv4Model(model.Model):
     def __init__(self):
@@ -68,6 +72,8 @@ class Inceptionv4Model(model.Model):
         with slim.arg_scope(arg_scope):
             return inception_v4(images, num_classes, is_training=is_training)
 
+    def pre_rescaling(images, is_training=True):
+        return inception_pre_rescaling(images, is_training)
 
 
 # class GooglenetModel(model.Model):

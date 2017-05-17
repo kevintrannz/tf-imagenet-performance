@@ -941,12 +941,9 @@ class BenchmarkCNN(object):
                 labels = host_labels
 
         with tf.device(self.devices[device_num]):
-            # Rescale to [0, 1)
-            images *= 1. / 256
-            # Rescale to [-1,1] instead of [0, 1)
-            images = tf.subtract(images, 0.5)
-            images = tf.multiply(images, 2.0)
-
+            # Rescale using Model routines.
+            images = self.model_conf.pre_rescaling(images, phase_train)
+            # Convert images to correct data format.
             if self.data_format == 'NCHW':
                 images = tf.transpose(images, [0, 3, 1, 2])
             if input_data_type != data_type:

@@ -30,6 +30,17 @@ from models_slim import custom_layers
 slim = tf.contrib.slim
 
 
+def inception_pre_rescaling(images, is_training=True):
+    """Rescales an images Tensor before feeding the network
+    Input tensor supposed to be in [0, 256) range.
+    """
+    # Rescale to [-1,1] instead of [0, 1)
+    images *= 1. / 256
+    images = tf.subtract(images, 0.5)
+    images = tf.multiply(images, 2.0)
+    return images
+
+
 def inception_arg_scope(weight_decay=0.00004,
                         data_format='NCHW',
                         use_batch_norm=True,

@@ -25,6 +25,7 @@ from __future__ import print_function
 import tensorflow as tf
 from models import model
 from models_slim import custom_layers
+from models_slim import vgg
 
 slim = tf.contrib.slim
 
@@ -43,6 +44,9 @@ class Vgg11FCModel(model.Model):
         with slim.arg_scope(arg_scope):
             return vgg_a(images, num_classes, is_training=is_training)
 
+    def pre_rescaling(images, is_training=True):
+        return vgg.vgg_pre_rescaling(images, is_training)
+
 
 class Vgg16FCModel(model.Model):
     def __init__(self):
@@ -55,6 +59,9 @@ class Vgg16FCModel(model.Model):
         with slim.arg_scope(arg_scope):
             return vgg_16(images, num_classes, is_training=is_training)
 
+    def pre_rescaling(images, is_training=True):
+        return vgg.vgg_pre_rescaling(images, is_training)
+
 
 class Vgg19FCModel(model.Model):
     def __init__(self):
@@ -66,6 +73,9 @@ class Vgg19FCModel(model.Model):
         arg_scope = vgg_arg_scope(is_training=is_training, data_format=data_format)
         with slim.arg_scope(arg_scope):
             return vgg_19(images, num_classes, is_training=is_training)
+
+    def pre_rescaling(images, is_training=True):
+        return vgg.vgg_pre_rescaling(images, is_training)
 
 
 # =========================================================================== #

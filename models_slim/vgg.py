@@ -47,6 +47,11 @@ from models_slim import custom_layers
 
 slim = tf.contrib.slim
 
+# VGG mean parameters.
+_R_MEAN = 123.68
+_G_MEAN = 116.78
+_B_MEAN = 103.94
+
 
 # =========================================================================== #
 # VGG classes.
@@ -62,6 +67,9 @@ class Vgg11Model(model.Model):
         with slim.arg_scope(arg_scope):
             return vgg_a(images, num_classes, is_training=is_training)
 
+    def pre_rescaling(images, is_training=True):
+        return vgg_pre_rescaling(images, is_training)
+
 
 class Vgg16Model(model.Model):
     def __init__(self):
@@ -74,6 +82,9 @@ class Vgg16Model(model.Model):
         with slim.arg_scope(arg_scope):
             return vgg_16(images, num_classes, is_training=is_training)
 
+    def pre_rescaling(images, is_training=True):
+        return vgg_pre_rescaling(images, is_training)
+
 
 class Vgg19Model(model.Model):
     def __init__(self):
@@ -85,6 +96,9 @@ class Vgg19Model(model.Model):
         arg_scope = vgg_arg_scope(is_training=is_training, data_format=data_format)
         with slim.arg_scope(arg_scope):
             return vgg_19(images, num_classes, is_training=is_training)
+
+    def pre_rescaling(images, is_training=True):
+        return vgg_pre_rescaling(images, is_training)
 
 
 # =========================================================================== #
@@ -109,6 +123,16 @@ def vgg_arg_scope(weight_decay=0.0005, data_format='NCHW', is_training=True):
                                  custom_layers.spatial_squeeze],
                                 data_format=data_format) as sc:
                 return sc
+
+
+def vgg_pre_rescaling(images, is_training=True):
+    """Rescales an images Tensor before feeding the network
+    Input tensor supposed to be in [0, 256) range.
+    """
+    # Remove ImageNet mean value.
+    mean = tf.constant([_R_MEAN, _G_MEAN, _B_MEAN], dtype=images.dtype)
+    images = images - mean
+    return images
 
 
 def vgg_a(inputs,
