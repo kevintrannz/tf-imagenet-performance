@@ -204,8 +204,8 @@ log_fn = print   # tf.logging.info
 # TF AND NP RANDOM SEEDS
 TF_RANDOM_SEED = 1234
 NP_RANDOM_SEED = 4321
-TF_RANDOM_SEED = int(time.time() * 10)
-NP_RANDOM_SEED = int(time.time() * 100)
+TF_RANDOM_SEED = int(time.time() * 1.1)
+NP_RANDOM_SEED = int(time.time() * 0.7)
 
 
 class GlobalStepWatcher(threading.Thread):
