@@ -122,3 +122,33 @@ python -u tf_cnn_benchmarks.py \
     --num_gpus=4 \
     --num_batches=391 \
     --batch_size=32
+
+# =========================================================================== #
+# Benchmark Original vs Slim
+# =========================================================================== #
+python -u tf_cnn_benchmarks.py \
+    --local_parameter_device=cpu \
+    --data_name=imagenet \
+    --model=vgg16 \
+    --variable_update=parameter_server \
+    --num_gpus=1 \
+    --weight_decay=0.00001 \
+    --learning_rate=0.01 \
+    --learning_rate_decay_factor=0.94 \
+    --num_epochs_per_decay=2.0 \
+    --optimizer=rmsprop \
+    --batch_size=32
+
+
+python -u tf_cnn_benchmarks_slim.py \
+    --local_parameter_device=cpu \
+    --data_name=imagenet \
+    --model=vgg_16 \
+    --variable_update=parameter_server \
+    --num_gpus=1 \
+    --weight_decay=0.00001 \
+    --learning_rate=0.01 \
+    --learning_rate_decay_factor=0.94 \
+    --num_epochs_per_decay=2.0 \
+    --optimizer=rmsprop \
+    --batch_size=32

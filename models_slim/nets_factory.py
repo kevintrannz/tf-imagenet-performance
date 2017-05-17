@@ -18,10 +18,10 @@
 import functools
 import tensorflow as tf
 
-from nets import inception
-# from nets import resnet_v1
-# from nets import resnet_v2
-from nets import vgg
+from models_slim import inception
+# from models_slim import resnet_v1
+# from models_slim import resnet_v2
+from models_slim import vgg
 
 slim = tf.contrib.slim
 
