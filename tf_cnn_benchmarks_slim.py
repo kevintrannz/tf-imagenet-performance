@@ -196,6 +196,9 @@ tf.flags.DEFINE_string('eval_dir', '/tmp/tf_cnn_benchmarks/eval',
                        """Directory where to write eval event logs.""")
 tf.flags.DEFINE_string('pretrain_dir', None,
                        """Path to pretrained session checkpoints.""")
+tf.flags.DEFINE_string('model_scope', None, """Model scope.""")
+tf.flags.DEFINE_string('ckpt_scope', None, """Checkpoint scope.""")
+
 
 FLAGS = tf.flags.FLAGS
 
@@ -377,6 +380,17 @@ def get_perf_timing_str(batch_size, step_train_times, scale=1):
                 speed_mean, speed_uncertainty, speed_jitter)
     else:
         return 'images/sec: %.1f' % speed_mean
+
+
+def variables_to_restore(l_vars, model_scope=None, ckpt_scope=None):
+    """Transform a list of variables to a dictionary
+    of variables to restore.
+    """
+    if model_scope is None or ckpt_scope is None:
+        d = {v.op.name: v for v in l_vars}
+    else:
+        d = {v.op.name.replace(model_scope, ckpt_scope): v for v in l_vars}
+    return d
 
 
 def load_checkpoint(saver, sess, ckpt_dir):
@@ -580,8 +594,10 @@ class BenchmarkCNN(object):
     def _eval_cnn(self):
         """Evaluate the model from a checkpoint using validation dataset."""
         (enqueue_ops, fetches) = self._build_model()
-        saver = tf.train.Saver(tf.global_variables())
-        print(tf.global_variables())
+        saver = tf.train.Saver(variables_to_restore(tf.global_variables(),
+                                                    FLAGS.model_scope,
+                                                    FLAGS.ckpt_scope))
+        # print(tf.global_variables())
         summary_writer = tf.summary.FileWriter(FLAGS.eval_dir,
                                                tf.get_default_graph())
         target = ''
@@ -657,7 +673,9 @@ class BenchmarkCNN(object):
         sv = tf.train.Supervisor(
                 is_chief=is_chief,
                 logdir=FLAGS.train_dir,
-                saver=tf.train.Saver(tf.global_variables()),
+                saver=tf.train.Saver(variables_to_restore(tf.global_variables(),
+                                                          FLAGS.model_scope,
+                                                          FLAGS.ckpt_scope)),
                 global_step=global_step,
                 summary_op=None,
                 save_model_secs=FLAGS.save_model_secs,

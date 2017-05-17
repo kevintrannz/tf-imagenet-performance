@@ -166,6 +166,8 @@ python -u tf_cnn_benchmarks_slim.py \
     --data_dir=${DATASET_DIR} \
     --data_name=imagenet \
     --model=inceptionv3 \
+    --model_scope=v/InceptionV3
+    --ckpt_scope=InceptionV3
     --variable_update=parameter_server \
     --summary_verbosity=1 \
     --num_gpus=1 \
