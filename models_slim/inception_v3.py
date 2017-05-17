@@ -518,7 +518,8 @@ def inception_v3(inputs,
                             normalizer_fn=None, weights_initializer=trunc_normal(0.001),
                             scope='Conv2d_2b_1x1')
                     if spatial_squeeze:
-                        aux_logits = tf.squeeze(aux_logits, [1, 2], name='SpatialSqueeze')
+                        aux_logits = custom_layers.spatial_squeeze(aux_logits, scope='SpatialSqueeze')
+                        # aux_logits = tf.squeeze(aux_logits, [1, 2], name='SpatialSqueeze')
                     end_points['AuxLogits'] = aux_logits
 
             # Final pooling and prediction
@@ -533,7 +534,8 @@ def inception_v3(inputs,
                 logits = slim.conv2d(net, num_classes, [1, 1], activation_fn=None,
                                      normalizer_fn=None, scope='Conv2d_1c_1x1')
                 if spatial_squeeze:
-                    logits = tf.squeeze(logits, [1, 2], name='SpatialSqueeze')
+                    logits = custom_layers.spatial_squeeze(logits, scope='SpatialSqueeze')
+                    # logits = tf.squeeze(logits, [1, 2], name='SpatialSqueeze')
                 # 1000
             end_points['Logits'] = logits
             end_points['Predictions'] = prediction_fn(logits, scope='Predictions')
