@@ -140,7 +140,18 @@ def eval_image(image, height, width, bbox, thread_id, resize):
             x0 = (shape[1] - width) // 2
             # distorted_image = tf.slice(image, [y0,x0,0], [height,width,3])
             distorted_image = tf.image.crop_to_bounding_box(image, y0, x0, height,
-                                                                                                            width)
+                                                            width)
+        elif resize == 'eval':
+            # Original eval code from Inception pre-processing.
+            central_fraction = 0.875
+            if central_fraction:
+                image = tf.image.central_crop(image, central_fraction=central_fraction)
+            if height and width:
+                # Resize the image to the specified height and width.
+                image = tf.expand_dims(image, 0)
+                image = tf.image.resize_bilinear(image, [height, width],
+                                                 align_corners=False)
+                image.set_shape([height, width, 3])
         else:
             sample_distorted_bounding_box = tf.image.sample_distorted_bounding_box(
                 tf.shape(image),
