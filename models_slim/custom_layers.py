@@ -131,17 +131,13 @@ def pad2d(inputs,
 
 
 @add_arg_scope
-def channel_to_last(inputs,
-                    data_format='NHWC',
-                    scope=None):
+def channel_to_last(inputs, data_format='NHWC', scope=None):
     """Move the channel axis to the last dimension. Allows to
     provide a single output format whatever the input data format.
 
     Args:
       inputs: Input Tensor;
       data_format: NHWC or NCHW.
-    Return:
-      Input in NHWC format.
     """
     with tf.name_scope(scope, 'channel_to_last', [inputs]):
         if data_format == 'NHWC':
@@ -152,16 +148,12 @@ def channel_to_last(inputs,
 
 
 @add_arg_scope
-def concat_channels(l_inputs,
-                    data_format='NHWC',
-                    scope=None):
+def concat_channels(l_inputs, data_format='NHWC', scope=None):
     """Concat a list of tensors on the channel axis.
 
     Args:
       inputs: List Tensors;
       data_format: NHWC or NCHW.
-    Return:
-      Input in NHWC format.
     """
     with tf.name_scope(scope, 'concat_channels', l_inputs):
         if data_format == 'NHWC':
@@ -170,6 +162,34 @@ def concat_channels(l_inputs,
             net = tf.concat(l_inputs, axis=1)
         return net
 
+
+@add_arg_scope
+def spatial_mean(inputs, keep_dims=False, data_format='NHWC', scope=None):
+    """Average tensor along spatial dimensions.
+
+    Args:
+      inputs: Input tensor;
+      keep_dims: Keep spatial dimensions?
+      data_format: NHWC or NCHW.
+    """
+    with tf.name_scope(scope, 'spatial_mean', inputs):
+        axes = [1, 2] if data_format == 'NHWC' else [2, 3]
+        net = tf.reduce_mean(inputs, axes, keep_dims=keep_dims)
+        return net
+
+
+@add_arg_scope
+def spatial_squeeze(inputs, data_format='NHWC', scope=None):
+    """Squeeze spatial dimensions, if possible.
+
+    Args:
+      inputs: Input tensor;
+      data_format: NHWC or NCHW.
+    """
+    with tf.name_scope(scope, 'spatial_squeeze', inputs):
+        axes = [1, 2] if data_format == 'NHWC' else [2, 3]
+        net = tf.squeeze(inputs, axes)
+        return net
 
 # =========================================================================== #
 # Separable convolution 2d with difference padding.
