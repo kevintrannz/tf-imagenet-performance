@@ -172,7 +172,7 @@ def spatial_mean(inputs, keep_dims=False, data_format='NHWC', scope=None):
       keep_dims: Keep spatial dimensions?
       data_format: NHWC or NCHW.
     """
-    with tf.name_scope(scope, 'spatial_mean', inputs):
+    with tf.name_scope(scope, 'spatial_mean', [inputs]):
         axes = [1, 2] if data_format == 'NHWC' else [2, 3]
         net = tf.reduce_mean(inputs, axes, keep_dims=keep_dims)
         return net
@@ -186,7 +186,7 @@ def spatial_squeeze(inputs, data_format='NHWC', scope=None):
       inputs: Input tensor;
       data_format: NHWC or NCHW.
     """
-    with tf.name_scope(scope, 'spatial_squeeze', inputs):
+    with tf.name_scope(scope, 'spatial_squeeze', [inputs]):
         axes = [1, 2] if data_format == 'NHWC' else [2, 3]
         net = tf.squeeze(inputs, axes)
         return net
