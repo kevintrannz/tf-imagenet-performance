@@ -43,6 +43,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 from models import model
+from models_slim import custom_layers
 
 slim = tf.contrib.slim
 
@@ -104,7 +105,8 @@ def vgg_arg_scope(weight_decay=0.0005, data_format='NCHW', is_training=True):
                         biases_initializer=tf.zeros_initializer()):
         with slim.arg_scope([slim.conv2d], padding='SAME'):
             # Data format scope...
-            with slim.arg_scope([slim.conv2d, slim.max_pool2d],
+            with slim.arg_scope([slim.conv2d, slim.max_pool2d,
+                                 custom_layers.spatial_squeeze],
                                 data_format=data_format) as sc:
                 return sc
 
@@ -162,7 +164,8 @@ def vgg_a(inputs,
             # Convert end_points_collection into a end_point dict.
             end_points = slim.utils.convert_collection_to_dict(end_points_collection)
             if spatial_squeeze:
-                net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
+                # net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
+                net = custom_layers.spatial_squeeze(net)
                 end_points[sc.name + '/fc8'] = net
             return net, end_points
 vgg_a.default_image_size = 224
@@ -221,7 +224,8 @@ def vgg_16(inputs,
             # Convert end_points_collection into a end_point dict.
             end_points = slim.utils.convert_collection_to_dict(end_points_collection)
             if spatial_squeeze:
-                net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
+                # net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
+                net = custom_layers.spatial_squeeze(net)
                 end_points[sc.name + '/fc8'] = net
             return net, end_points
 vgg_16.default_image_size = 224
@@ -280,7 +284,8 @@ def vgg_19(inputs,
             # Convert end_points_collection into a end_point dict.
             end_points = slim.utils.convert_collection_to_dict(end_points_collection)
             if spatial_squeeze:
-                net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
+                # net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
+                net = custom_layers.spatial_squeeze(net)
                 end_points[sc.name + '/fc8'] = net
             return net, end_points
 vgg_19.default_image_size = 224
