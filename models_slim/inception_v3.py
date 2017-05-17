@@ -508,10 +508,9 @@ def inception_v3(inputs,
                                                                      scope='Conv2d_1b_1x1')
 
                     # Shape of feature map before the final layer.
-                    kernel_size = _reduced_kernel_size_for_small_input(
-                            aux_logits, [5, 5])
+                    ksize = custom_layers.ksize_for_squeezing(aux_logits, [5, 5])
                     aux_logits = slim.conv2d(
-                            aux_logits, depth(768), kernel_size,
+                            aux_logits, depth(768), ksize,
                             weights_initializer=trunc_normal(0.01),
                             padding='VALID', scope='Conv2d_2a_{}x{}'.format(*kernel_size))
                     aux_logits = slim.conv2d(
@@ -524,8 +523,8 @@ def inception_v3(inputs,
 
             # Final pooling and prediction
             with tf.variable_scope('Logits'):
-                kernel_size = _reduced_kernel_size_for_small_input(net, [8, 8])
-                net = slim.avg_pool2d(net, kernel_size, padding='VALID',
+                ksize = custom_layers.ksize_for_squeezing(net, [8, 8])
+                net = slim.avg_pool2d(net, ksize, padding='VALID',
                                       scope='AvgPool_1a_{}x{}'.format(*kernel_size))
                 # 1 x 1 x 2048
                 net = slim.dropout(net, keep_prob=dropout_keep_prob, scope='Dropout_1b')
