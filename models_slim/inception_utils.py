@@ -34,7 +34,8 @@ def inception_arg_scope(weight_decay=0.00004,
                         data_format='NCHW',
                         use_batch_norm=True,
                         batch_norm_decay=0.9997,
-                        batch_norm_epsilon=0.001):
+                        batch_norm_epsilon=0.001,
+                        is_training=True):
     """Defines the default arg scope for inception models.
 
     Args:

@@ -89,7 +89,7 @@ class Vgg19Model(model.Model):
 # =========================================================================== #
 # Functional definition.
 # =========================================================================== #
-def vgg_arg_scope(weight_decay=0.0005, data_format='NCHW'):
+def vgg_arg_scope(weight_decay=0.0005, data_format='NCHW', is_training=True):
     """Defines the VGG arg scope.
 
     Args:
