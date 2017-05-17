@@ -57,6 +57,27 @@ CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks.py \
     --variable_update=parameter_server \
     --num_batches=1000000000000 \
     --summary_verbosity=1 \
+    --save_summaries_steps=600 \
+    --save_model_secs=1200 \
+    --num_gpus=2 \
+    --weight_decay=0.00001 \
+    --learning_rate=0.1 \
+    --learning_rate_decay_factor=0.94 \
+    --num_epochs_per_decay=1.0 \
+    --optimizer=rmsprop \
+    --batch_size=128 &
+
+
+CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks.py \
+    --local_parameter_device=cpu \
+    --train_dir=${TRAIN_DIR} \
+    --data_dir=${DATASET_DIR} \
+    --pretrain_dir=${TRAIN_DIR} \
+    --data_name=imagenet \
+    --model=mobilenet \
+    --variable_update=parameter_server \
+    --num_batches=1000000000000 \
+    --summary_verbosity=1 \
     --save_summaries_steps=1000 \
     --save_model_secs=1800 \
     --num_gpus=2 \
@@ -67,7 +88,7 @@ CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks.py \
     --optimizer=rmsprop \
     --batch_size=64 &
 
---pretrain_dir=${TRAIN_DIR} \
+
 
 nohup python -u tf_cnn_benchmarks.py \
     --local_parameter_device=cpu \
