@@ -164,7 +164,7 @@ def mobilenets(inputs,
         net = mobilenet_block(net, 1024, stride=[2, 2], scope='block13')
         net = mobilenet_block(net, 1024, scope='block14')
         # Spatial pooling + fully connected layer.
-        net = custom_layers.spatial_mean(net, scope='spatial_mean14')
+        net = custom_layers.spatial_mean(net, scope='spatial_mean14') * 49
         net = slim.fully_connected(net, 1000,  scope='fc15')
 
         # Logits padding...
