@@ -47,7 +47,7 @@ class MobileNetsModel(model.Model):
             return mobilenets(images, num_classes, self.width_multiplier,
                               is_training=is_training)
 
-    def pre_rescaling(images, is_training=True):
+    def pre_rescaling(self, images, is_training=True):
         return mobilenets_pre_rescaling(images, is_training)
 
 

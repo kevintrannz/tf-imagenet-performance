@@ -44,7 +44,7 @@ class Vgg11FCModel(model.Model):
         with slim.arg_scope(arg_scope):
             return vgg_a(images, num_classes, is_training=is_training)
 
-    def pre_rescaling(images, is_training=True):
+    def pre_rescaling(self, images, is_training=True):
         return vgg.vgg_pre_rescaling(images, is_training)
 
 
