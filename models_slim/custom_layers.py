@@ -325,6 +325,23 @@ def depthwise_convolution2d(
 depthwise_conv2d = depthwise_convolution2d
 
 
+@add_arg_scope
+def pad_logits(logits, pad=(0, 0)):
+    """Pad logits Tensor, to deal with different
+    number of classes.
+    """
+    dtype = logits.dtype
+    l = [logits]
+    if pad[0] > 0:
+        a = tf.constant(dtype.min, dtype, (pad[0], ))
+        l = [a] + l
+    if pad[1] > 0:
+        a = tf.constant(dtype.min, dtype, (pad[1], ))
+        l = [a] + l
+    output = tf.concat(l, axis=0)
+    return output
+
+
 # =========================================================================== #
 # Separable convolution 2d with difference padding.
 # =========================================================================== #
