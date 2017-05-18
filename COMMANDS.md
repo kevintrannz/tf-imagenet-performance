@@ -191,3 +191,22 @@ python -u tf_cnn_benchmarks_slim.py \
     --num_gpus=1 \
     --num_batches=500 \
     --batch_size=100
+
+
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/vgg_16.ckpt
+python -u tf_cnn_benchmarks_slim.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${CHECKPOINT_PATH} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --resize_method=crop \
+    --model=mobilenets \
+    --model_scope=v/vgg16 \
+    --ckpt_scope=vgg_16 \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=1 \
+    --num_batches=500 \
+    --batch_size=100

@@ -241,7 +241,7 @@ def vgg_16(inputs,
             net = slim.conv2d(net, 4096, [1, 1], scope='fc7')
             net = slim.dropout(net, dropout_keep_prob, is_training=is_training,
                                scope='dropout7')
-            net = slim.conv2d(net, num_classes, [1, 1],
+            net = slim.conv2d(net, 1000, [1, 1],
                               activation_fn=None,
                               normalizer_fn=None,
                               scope='fc8')
@@ -250,6 +250,7 @@ def vgg_16(inputs,
             if spatial_squeeze:
                 # net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
                 net = custom_layers.spatial_squeeze(net)
+                net = custom_layers.pad_logits(net, pad=(num_classes - 1000, 0))
                 end_points[sc.name + '/fc8'] = net
             return net, end_points
 vgg_16.default_image_size = 224
