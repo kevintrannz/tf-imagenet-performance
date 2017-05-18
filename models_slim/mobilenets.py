@@ -142,7 +142,7 @@ def mobilenets(inputs,
                 depth_multiplier=1, stride=stride,
                 scope='conv_dw')
             # Pointwise convolution.
-            net = slim.conv2d(inputs, num_out_channels, [1, 1],
+            net = slim.conv2d(net, num_out_channels, [1, 1],
                               scope='conv_pw')
             return net
 
