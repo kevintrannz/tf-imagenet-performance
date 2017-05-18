@@ -64,7 +64,7 @@ def mobilenets_pre_rescaling(images, is_training=True):
     # images = tf.multiply(images, 2.0)
     mean = tf.constant([_R_MEAN, _G_MEAN, _B_MEAN], dtype=images.dtype)
     images = images - mean
-    images = images * _SCALING
+    # images = images * _SCALING
     return images
 
 
