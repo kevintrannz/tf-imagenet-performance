@@ -23,6 +23,11 @@ import cnn_util
 
 FLAGS = tf.flags.FLAGS
 
+# Record Input parameters.
+RECORDINPUT_SEED = 301
+RECORDINPUT_PARALLELISM = 64
+RECORDINPUT_BUFFER_SIZE = 10000
+
 # DISTORT bounding box parameters.
 MIN_OBJECT_COVERED = 0.3
 ASPECT_RATIO_RANGE = [0.8, 1.2]
@@ -367,9 +372,7 @@ class ImagePreprocessor(object):
             image = eval_image(image, self.height, self.width, bbox, thread_id,
                                self.resize_method)
         # Note: image is now float32 [height,width,3] with range [0, 255]
-
         # image = tf.cast(image, tf.uint8) # HACK TESTING
-
         return image
 
     def minibatch(self, dataset, subset):
@@ -378,9 +381,9 @@ class ImagePreprocessor(object):
             labels = [[] for i in range(self.device_count)]
             record_input = data_flow_ops.RecordInput(
                 file_pattern=dataset.tf_record_pattern(subset),
-                seed=301,
-                parallelism=64,
-                buffer_size=10000,
+                seed=RECORDINPUT_SEED,
+                parallelism=RECORDINPUT_PARALLELISM,
+                buffer_size=RECORDINPUT_BUFFER_SIZE,
                 batch_size=self.batch_size,
                 name='record_input')
             records = record_input.get_yield_op()
