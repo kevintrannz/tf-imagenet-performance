@@ -133,14 +133,14 @@ def mobilenets(inputs,
                 depth_multiplier=1, stride=stride,
                 scope='conv_dw')
             # Pointwise convolution.
-            net = slim.conv2d(inputs, num_out_channels, kernel_size,
+            net = slim.conv2d(inputs, num_out_channels, [1, 1],
                               scope='conv_pw')
             return net
 
     with tf.variable_scope(scope, 'MobileNets', [inputs]) as sc:
         end_points = {}
         # First full convolution...
-        net = slim.conv2d(inputs, 32, [3, 3], stride=[2, 2], scope='block1')
+        net = slim.conv2d(inputs, 32, [3, 3], stride=[2, 2], scope='conv1')
         # Then, MobileNet blocks!
         net = mobilenet_block(net, 64, scope='block2')
         net = mobilenet_block(net, 128, stride=[2, 2], scope='block3')
