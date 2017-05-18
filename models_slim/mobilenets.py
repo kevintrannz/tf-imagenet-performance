@@ -24,6 +24,12 @@ from models_slim import custom_layers
 
 slim = tf.contrib.slim
 
+# VGG mean parameters.
+_R_MEAN = 123.68
+_G_MEAN = 116.78
+_B_MEAN = 103.94
+_SCALING = 0.017
+
 
 # =========================================================================== #
 # MobileNets class.
@@ -53,9 +59,12 @@ def mobilenets_pre_rescaling(images, is_training=True):
     Input tensor supposed to be in [0, 256) range.
     """
     # Rescale to [-1,1] instead of [0, 1)
-    images *= 1. / 255.
-    images = tf.subtract(images, 0.5)
-    images = tf.multiply(images, 2.0)
+    # images *= 1. / 255.
+    # images = tf.subtract(images, 0.5)
+    # images = tf.multiply(images, 2.0)
+    mean = tf.constant([_R_MEAN, _G_MEAN, _B_MEAN], dtype=images.dtype)
+    images = images - mean
+    images = images * _SCALING
     return images
 
 

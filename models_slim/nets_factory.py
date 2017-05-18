@@ -21,6 +21,7 @@ import tensorflow as tf
 from models_slim import inception
 # from models_slim import resnet_v1
 # from models_slim import resnet_v2
+from models_slim import mobilenets
 from models_slim import vgg
 from models_slim import vgg_fc
 
@@ -34,6 +35,7 @@ networks_map = {'vgg11': vgg.vgg_a,
                 'vgg19_fc': vgg_fc.vgg_19,
                 'inceptionv3': inception.inception_v3,
                 'inceptionv4': inception.inception_v4,
+                'mobilenets': mobilenets.mobilenets,
                 }
 
 arg_scopes_map = {'vgg11': vgg.vgg_arg_scope,
@@ -44,6 +46,7 @@ arg_scopes_map = {'vgg11': vgg.vgg_arg_scope,
                   'vgg19_fc': vgg_fc.vgg_arg_scope,
                   'inceptionv3': inception.inception_v3_arg_scope,
                   'inceptionv4': inception.inception_v4_arg_scope,
+                  'mobilenets': mobilenets.mobilenets_arg_scope,
                   }
 
 models_map = {'vgg11': vgg.Vgg11Model(),
@@ -54,6 +57,7 @@ models_map = {'vgg11': vgg.Vgg11Model(),
               'vgg19_fc': vgg_fc.Vgg19FCModel(),
               'inceptionv3': inception.Inceptionv3Model(),
               'inceptionv4': inception.Inceptionv4Model(),
+              'mobilenets': mobilenets.MobileNetsModel(),
               }
 
 
