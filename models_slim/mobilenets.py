@@ -110,7 +110,7 @@ def mobilenets_arg_scope(weight_decay=0.00004,
 
 
 def mobilenets(inputs,
-               num_classes=1001,
+               num_classes=1000,
                width_multiplier=1.0,
                is_training=True,
                dropout_keep_prob=0.5,
@@ -165,9 +165,9 @@ def mobilenets(inputs,
         net = mobilenet_block(net, 1024, scope='block14')
         # Spatial pooling + fully connected layer.
         net = custom_layers.spatial_mean(net, scope='spatial_mean14')
-        net = slim.fully_connected(net, num_classes,  scope='fc15')
+        net = slim.fully_connected(net, 1000,  scope='fc15')
 
-        # Temp padding...
-        net = custom_layers.pad_logits(net, pad=(1, 0))
+        # Logits padding...
+        net = custom_layers.pad_logits(net, pad=(num_classes - 1000, 0))
         return net, end_points
 mobilenets.default_image_size = 224
