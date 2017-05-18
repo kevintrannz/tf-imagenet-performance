@@ -275,7 +275,7 @@ def distort_image(image, height, width, bbox, thread_id=0, scope=None):
         # Randomly distort the colors.
         distorted_image = distort_color(distorted_image, thread_id)
         # Note: This ensures the scaling matches the output of eval_image
-        distorted_image *= 256
+        distorted_image *= 255
 
         if not thread_id:
             tf.summary.image('final_distorted_image',
