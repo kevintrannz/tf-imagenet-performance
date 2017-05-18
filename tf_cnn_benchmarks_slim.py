@@ -395,7 +395,7 @@ def variables_to_restore(l_vars, model_scope=None, ckpt_scope=None):
 
 def load_checkpoint(saver, sess, ckpt_dir):
     # Pointing directly to a file?
-    if os.path.isfile(ckpt_dir):
+    if not os.path.isdir(ckpt_dir):
         saver.restore(sess, ckpt_dir)
         log_fn('Successfully loaded model from %s.' % ckpt_dir)
         global_step = 0
