@@ -164,8 +164,15 @@ def mobilenets(inputs,
         net = mobilenet_block(net, 1024, stride=[2, 2], scope='block13')
         net = mobilenet_block(net, 1024, scope='block14')
         # Spatial pooling + fully connected layer.
-        net = custom_layers.spatial_mean(net, scope='spatial_mean14') * 49
-        net = slim.fully_connected(net, 1000,  scope='fc15')
+        net = custom_layers.spatial_mean(net, keep_dims=True, scope='spatial_mean14')
+        net = slim.conv2d(net, 1000, [1, 1],
+                          activation_fn=None,
+                          normalizer_fn=None,
+                          normalizer_params=None,
+                          biases_initializer=tf.zeros_initializer(),
+                          scope='conv_fc15')
+        net = tf.squeeze(net)
+        # net = slim.fully_connected(net, 1000,  scope='fc15')
 
         # Logits padding...
         net = custom_layers.pad_logits(net, pad=(num_classes - 1000, 0))
