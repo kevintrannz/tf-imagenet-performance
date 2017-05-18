@@ -59,7 +59,7 @@ class Vgg16FCModel(model.Model):
         with slim.arg_scope(arg_scope):
             return vgg_16(images, num_classes, is_training=is_training)
 
-    def pre_rescaling(images, is_training=True):
+    def pre_rescaling(self, images, is_training=True):
         return vgg.vgg_pre_rescaling(images, is_training)
 
 
@@ -74,7 +74,7 @@ class Vgg19FCModel(model.Model):
         with slim.arg_scope(arg_scope):
             return vgg_19(images, num_classes, is_training=is_training)
 
-    def pre_rescaling(images, is_training=True):
+    def pre_rescaling(self, images, is_training=True):
         return vgg.vgg_pre_rescaling(images, is_training)
 
 

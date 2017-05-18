@@ -202,11 +202,11 @@ python -u tf_cnn_benchmarks_slim.py \
     --data_dir=${DATASET_DIR} \
     --data_name=imagenet \
     --resize_method=crop \
-    --model=mobilenets \
+    --model=vgg16 \
     --model_scope=v/vgg16 \
     --ckpt_scope=vgg_16 \
     --variable_update=parameter_server \
     --summary_verbosity=1 \
     --num_gpus=1 \
-    --num_batches=500 \
-    --batch_size=100
+    --num_batches=50 \
+    --batch_size=10
