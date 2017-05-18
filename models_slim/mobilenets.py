@@ -158,5 +158,7 @@ def mobilenets(inputs,
         net = custom_layers.spatial_mean(net, scope='spatial_mean14')
         net = slim.fully_connected(net, num_classes,  scope='fc15')
 
+        # Temp padding...
+        net = custom_layers.pad_logits(net, pad=(1, 0))
         return net, end_points
 mobilenets.default_image_size = 224
