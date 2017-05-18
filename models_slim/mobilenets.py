@@ -29,23 +29,36 @@ slim = tf.contrib.slim
 # MobileNets class.
 # =========================================================================== #
 class MobileNetsModel(model.Model):
-    def __init__(self):
-        super(MobileNetsModel, self).__init__('vgg11_fc', 224, 64, 0.005)
+    def __init__(self, model='mobilenets', width_multiplier=1.0):
+        super(MobileNetsModel, self).__init__(model, 224, 64, 0.005)
+        self.width_multiplier = width_multiplier
 
     def inference(self, images, num_classes,
                   is_training=True, data_format='NCHW', data_type=tf.float32):
         # Define VGG using functional slim definition
-        arg_scope = vgg_arg_scope(is_training=is_training, data_format=data_format)
+        arg_scope = mobilenets_arg_scope(is_training=is_training, data_format=data_format)
         with slim.arg_scope(arg_scope):
-            return vgg_a(images, num_classes, is_training=is_training)
+            return mobilenets(images, num_classes, self.width_multiplier,
+                              is_training=is_training)
 
     def pre_rescaling(images, is_training=True):
-        return vgg.vgg_pre_rescaling(images, is_training)
+        return mobilenets_pre_rescaling(images, is_training)
 
 
 # =========================================================================== #
 # Functional definition.
 # =========================================================================== #
+def mobilenets_pre_rescaling(images, is_training=True):
+    """Rescales an images Tensor before feeding the network
+    Input tensor supposed to be in [0, 256) range.
+    """
+    # Rescale to [-1,1] instead of [0, 1)
+    images *= 1. / 255.
+    images = tf.subtract(images, 0.5)
+    images = tf.multiply(images, 2.0)
+    return images
+
+
 def mobilenets_arg_scope(weight_decay=0.00004,
                          data_format='NCHW',
                          batch_norm_decay=0.9997,
