@@ -71,7 +71,7 @@ def mobilenets_pre_rescaling(images, is_training=True):
 def mobilenets_arg_scope(weight_decay=0.00004,
                          data_format='NCHW',
                          batch_norm_decay=0.9997,
-                         batch_norm_epsilon=0.001,
+                         batch_norm_epsilon=0.00001,
                          is_training=True):
     """Defines the default arg scope for MobileNets models.
     """
@@ -128,18 +128,18 @@ def mobilenets(inputs,
     Returns:
         the last op containing the log predictions and end_points dict.
     """
-    def mobilenet_block(inputs, num_out_channels, stride=[1, 1],
+    def mobilenet_block(net, num_out_channels, stride=[1, 1],
                         scope=None):
         """Basic MobileNet block combining:
          - depthwise conv + BN + relu
          - 1x1 conv + BN + relu
         """
-        with tf.variable_scope(scope, 'block', [inputs]) as sc:
+        with tf.variable_scope(scope, 'block', [net]) as sc:
             num_out_channels = int(num_out_channels * width_multiplier)
             kernel_size = [3, 3]
             # Depthwise convolution.
             net = custom_layers.depthwise_convolution2d(
-                inputs, kernel_size,
+                net, kernel_size,
                 depth_multiplier=1, stride=stride,
                 scope='conv_dw')
             # Pointwise convolution.
