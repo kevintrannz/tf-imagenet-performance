@@ -104,6 +104,7 @@ def mobilenets_arg_scope(weight_decay=0.00004,
                                  custom_layers.depthwise_convolution2d,
                                  custom_layers.concat_channels,
                                  custom_layers.channel_to_last,
+                                 custom_layers.spatial_squeeze,
                                  custom_layers.spatial_mean],
                                 data_format=data_format) as sc:
                 return sc
@@ -171,7 +172,7 @@ def mobilenets(inputs,
                           normalizer_params=None,
                           biases_initializer=tf.zeros_initializer(),
                           scope='conv_fc15')
-        net = tf.squeeze(net)
+        net = custom_layers.spatial_squeeze(net)
         # net = slim.fully_connected(net, 1000,  scope='fc15')
 
         # Logits padding...
