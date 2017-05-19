@@ -157,7 +157,6 @@ def mobilenets(inputs,
                         net,
                         kernel_size,
                         padding='SAME',
-                        depth_multiplier=1,
                         stride=stride,
                         rates=[1, 2],
                         pooling_sizes=[3, 1],
@@ -187,11 +186,14 @@ def mobilenets(inputs,
                                            scope='lead_conv1')
         # Then, MobileNet blocks!
         net = mobilenet_block(net, 64, scope='block2')
-        net = mobilenet_block(net, 128, stride=[2, 2], scope='block3')
+        net = mobilenet_block(net, 128, stride=[2, 2], leaders=True,
+                              scope='block3')
         net = mobilenet_block(net, 128, scope='block4')
-        net = mobilenet_block(net, 256, stride=[2, 2], scope='block5')
+        net = mobilenet_block(net, 256, stride=[2, 2], leaders=True,
+                              scope='block5')
         net = mobilenet_block(net, 256, scope='block6')
-        net = mobilenet_block(net, 512, stride=[2, 2], scope='block7')
+        net = mobilenet_block(net, 512, stride=[2, 2],  leaders=True,
+                              scope='block7')
         # Intermediate blocks...
         for i in range(5):
             net = mobilenet_block(net, 512, scope='block%i' % (i+8))
