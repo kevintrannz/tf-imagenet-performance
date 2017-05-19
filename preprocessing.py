@@ -19,7 +19,9 @@ from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
 from tensorflow.python.ops import data_flow_ops
+
 import cnn_util
+from preprocessing_slim import vgg_preprocessing
 
 FLAGS = tf.flags.FLAGS
 
@@ -39,7 +41,14 @@ MAX_HUE = 0.1
 RANGE_SATURATION = (0.75, 1.25)
 RANGE_CONTRAST = (0.75, 1.25)
 
+# Eval Parameters.
+CROP_CENTRAL_FRACTION = 0.875
+VGG_RESIZE_SIDE_MIN = 256
+VGG_RESIZE_SIDE_MAX = 512
 
+# =========================================================================== #
+# Decode TFRecords.
+# =========================================================================== #
 def parse_example_proto(example_serialized):
     """Parses an Example proto containing a training example of an image.
 
@@ -128,6 +137,40 @@ def decode_jpeg(image_buffer, scope=None):  # , dtype=tf.float32):
         return image
 
 
+# =========================================================================== #
+# Evaluation pre-processing.
+# =========================================================================== #
+def eval_image_crop(image, height, width):
+    """Simple center crop. The image needs to be bigger than target size.
+    """
+    with tf.name_scope('eval_image_crop'):
+        # Note: This is much slower than crop_to_bounding_box
+        #       It seems that the redundant pad step has huge overhead
+        # distorted_image = tf.image.resize_image_with_crop_or_pad(image,
+        #                                                         height, width)
+        shape = tf.shape(image)
+        y0 = (shape[0] - height) // 2
+        x0 = (shape[1] - width) // 2
+        # dst_image = tf.slice(image, [y0,x0,0], [height,width,3])
+        dst_image = tf.image.crop_to_bounding_box(image, y0, x0, height, width)
+        return dst_image
+
+
+def eval_image_crop_inception(image, height, width, central_fraction=0.875):
+    """Inception-like central crop, keeping only a fraction and resizing.
+    """
+    with tf.name_scope('eval_image_crop_inception'):
+        if central_fraction:
+            image = tf.image.central_crop(image, central_fraction=central_fraction)
+        if height and width:
+            # Resize the image to the specified height and width.
+            image = tf.expand_dims(image, 0)
+            image = tf.image.resize_bilinear(image, [height, width],
+                                             align_corners=False)
+            image = tf.squeeze(image, axis=[0])
+        return image
+
+
 def eval_image(image, height, width, bbox, thread_id, resize):
     """Get the image for model evaluation."""
     with tf.name_scope('eval_image'):
@@ -136,28 +179,16 @@ def eval_image(image, height, width, bbox, thread_id, resize):
                     'original_image', tf.expand_dims(image, 0))
 
         if resize == 'crop':
-            # Note: This is much slower than crop_to_bounding_box
-            #         It seems that the redundant pad step has huge overhead
-            # distorted_image = tf.image.resize_image_with_crop_or_pad(image,
-            #                                                         height, width)
-            shape = tf.shape(image)
-            y0 = (shape[0] - height) // 2
-            x0 = (shape[1] - width) // 2
-            # distorted_image = tf.slice(image, [y0,x0,0], [height,width,3])
-            distorted_image = tf.image.crop_to_bounding_box(image, y0, x0, height,
-                                                            width)
-        elif resize == 'eval':
-            # Original eval code from Inception pre-processing.
-            central_fraction = 0.875
-            if central_fraction:
-                image = tf.image.central_crop(image, central_fraction=central_fraction)
-            if height and width:
-                # Resize the image to the specified height and width.
-                image = tf.expand_dims(image, 0)
-                distorted_image = tf.image.resize_bilinear(image, [height, width],
-                                                           align_corners=False)
-                # distorted_image.set_shape([height, width, 3])
-                distorted_image = tf.squeeze(distorted_image, axis=[0])
+            # Simple center cropping.
+            distorted_image = eval_image_crop(image, height, width)
+        elif resize == 'crop_inception':
+            # Eval code from Inception pre-processing.
+            distorted_image = eval_image_crop_inception(image, height, width,
+                                                        CROP_CENTRAL_FRACTION)
+        elif resize == 'crop_vgg':
+            # Eval code from VGG pre-processing.
+            image = vgg_preprocessing._aspect_preserving_resize(image, VGG_RESIZE_SIDE_MIN)
+            distorted_image = vgg_preprocessing._central_crop([image], height, width)[0]
         else:
             sample_distorted_bounding_box = tf.image.sample_distorted_bounding_box(
                 tf.shape(image),
@@ -195,6 +226,9 @@ def eval_image(image, height, width, bbox, thread_id, resize):
     return image
 
 
+# =========================================================================== #
+# Training pre-processing.
+# =========================================================================== #
 def distort_image(image, height, width, bbox, thread_id=0, scope=None):
     """Distort one image for training a network.
 
