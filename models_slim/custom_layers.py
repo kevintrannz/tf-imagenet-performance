@@ -487,12 +487,18 @@ def depthwise_leaders_convolution2d(
                     net += o
         # Pooling => for stride > 1
         if stride_h > 1 or stride_w > 1:
-            net = tf.nn.pool(net,
-                             [1, 1],
-                             pooling_type,
-                             padding='SAME',
-                             strides=[stride_h, stride_w],
-                             data_format=data_format)
+            # net = tf.nn.pool(net,
+            #                  [1, 1],
+            #                  pooling_type,
+            #                  padding='SAME',
+            #                  strides=[stride_h, stride_w],
+            #                  data_format=data_format)
+            net = tf.nn.max_pool(net,
+                                 [1, 1],
+                                 pooling_type,
+                                 padding='SAME',
+                                 strides=[stride_h, stride_w],
+                                 data_format=data_format)
         # (Batch normalization)...
         normalizer_params = normalizer_params or {}
         net = normalizer_fn(net, **normalizer_params)
@@ -642,12 +648,18 @@ def leaders_convolution2d(
                     net += o
         # Pooling => for stride > 1
         if stride_h > 1 or stride_w > 1:
-            net = tf.nn.pool(net,
-                             [1, 1],
-                             pooling_type,
-                             padding='SAME',
-                             strides=[stride_h, stride_w],
-                             data_format=data_format)
+            # net = tf.nn.pool(net,
+            #                  [1, 1],
+            #                  pooling_type,
+            #                  padding='SAME',
+            #                  strides=[stride_h, stride_w],
+            #                  data_format=data_format)
+            net = tf.nn.max_pool(net,
+                                 [1, 1],
+                                 pooling_type,
+                                 padding='SAME',
+                                 strides=[stride_h, stride_w],
+                                 data_format=data_format)
         # (Batch normalization)...
         normalizer_params = normalizer_params or {}
         net = normalizer_fn(net, **normalizer_params)
