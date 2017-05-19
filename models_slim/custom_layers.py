@@ -494,9 +494,9 @@ def depthwise_leaders_convolution2d(
             #                  strides=[stride_h, stride_w],
             #                  data_format=data_format)
             net = tf.nn.max_pool(net,
-                                 [1, 1],
+                                 [1, 1, 1, 1],
                                  padding='SAME',
-                                 strides=[stride_h, stride_w],
+                                 strides=strides,
                                  data_format=data_format)
         # (Batch normalization)...
         normalizer_params = normalizer_params or {}
@@ -588,8 +588,10 @@ def leaders_convolution2d(
         stride_h, stride_w = utils.two_element_tuple(stride)
         if data_format == 'NHWC':
             num_filters_in = utils.last_dimension(inputs.get_shape(), min_rank=4)
+            strides = [1, stride_h, stride_w, 1]
         else:
             num_filters_in = inputs.get_shape().as_list()[1]
+            strides = [1, 1, stride_h, stride_w]
 
         # Conv weights + biases variables.
         weights_collections = utils.get_variable_collections(
@@ -654,9 +656,9 @@ def leaders_convolution2d(
             #                  strides=[stride_h, stride_w],
             #                  data_format=data_format)
             net = tf.nn.max_pool(net,
-                                 [1, 1],
+                                 [1, 1, 1, 1],
                                  padding='SAME',
-                                 strides=[stride_h, stride_w],
+                                 strides=strides,
                                  data_format=data_format)
         # (Batch normalization)...
         normalizer_params = normalizer_params or {}
