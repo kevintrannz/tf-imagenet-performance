@@ -428,9 +428,12 @@ def depthwise_leaders_convolution2d(
         else:
             num_filters_in = inputs.get_shape().as_list()[1]
             strides = [1, 1, stride_h, stride_w]
+        # Depthwise weights + biases variables.
+        depth_multiplier = 1
+        num_outputs = depth_multiplier * num_filters_in
+
         weights_collections = utils.get_variable_collections(
             variables_collections, 'weights')
-        # Depthwise weights variable.
         depthwise_shape = [kernel_h, kernel_w,
                            num_filters_in, depth_multiplier]
         depthwise_weights = variables.model_variable(
@@ -441,32 +444,66 @@ def depthwise_leaders_convolution2d(
             regularizer=weights_regularizer,
             trainable=trainable,
             collections=weights_collections)
+        biases_collections = utils.get_variable_collections(
+            variables_collections, 'biases')
+        biases = variables.model_variable('biases',
+                                          shape=[num_outputs,],
+                                          dtype=dtype,
+                                          initializer=biases_initializer,
+                                          regularizer=biases_regularizer,
+                                          trainable=trainable,
+                                          collections=biases_collections)
 
-        # Perform the
-
-        outputs = nn.depthwise_conv2d(inputs, depthwise_weights,
-                                      [1, 1, 1, 1], 'SAME',
+        # Perform the convolution at different rates.
+        outputs = []
+        for i, rate in enumerate(rates):
+            # Depthwise conv.
+            net = nn.depthwise_conv2d(inputs, depthwise_weights,
+                                      strides=[1, 1, 1, 1],
+                                      padding='SAME',
                                       rate=utils.two_element_tuple(rate),
                                       data_format=data_format)
-        num_outputs = depth_multiplier * num_filters_in
+            # Add bias + abs. val.
+            net = tf.abs(nn.bias_add(net, biases, data_format=data_format))
+            # Pooling...
+            if pooling_sizes[i] > 1:
+                net = tf.nn.pool(net,
+                                 [pooling_sizes[i], pooling_sizes[i]],
+                                 pooling_type,
+                                 padding='SAME',
+                                 data_format=data_format)
+            outputs.append(net)
+        # Fuse different rates/scales.
+        net = None
+        for o in outputs:
+            if net is None:
+                # First in the list...
+                net = o
+            else:
+                # MAX or AVG pooling...
+                if pooling_type == 'MAX':
+                    net = tf.maximum(net, o)
+                else:
+                    net += o
+        # Pooling => for stride > 1
+        if stride_h > 1 or stride_w > 1:
+            net = tf.nn.pool(net,
+                             [1, 1],
+                             pooling_type,
+                             padding='SAME',
+                             strides=[stride_h, stride_w],
+                             data_format=data_format)
+        # (Batch normalization)...
+        normalizer_params = normalizer_params or {}
+        net = normalizer_fn(net, **normalizer_params)
 
-        if normalizer_fn is not None:
-            normalizer_params = normalizer_params or {}
-            outputs = normalizer_fn(outputs, **normalizer_params)
-        else:
-            if biases_initializer is not None:
-                biases_collections = utils.get_variable_collections(
-                    variables_collections, 'biases')
-                biases = variables.model_variable('biases',
-                                                  shape=[num_outputs,],
-                                                  dtype=dtype,
-                                                  initializer=biases_initializer,
-                                                  regularizer=biases_regularizer,
-                                                  trainable=trainable,
-                                                  collections=biases_collections)
-                outputs = nn.bias_add(outputs, biases)
-        if activation_fn is not None:
-            outputs = activation_fn(outputs)
+        # Split into two parts: positive and negative extreme.
+        net_p = slim.bias_add(net, data_format=data_format, scope='bias_positive')
+        net_p = activation_fn(net_p)
+        net_m = slim.bias_add(-net, data_format=data_format, scope='bias_negative')
+        net_m = activation_fn(net_m)
+        # Concat the final result...
+        outputs = concat_channels([net_p, net_m], data_format=data_format)
         return utils.collect_named_outputs(outputs_collections,
                                            sc.original_name_scope, outputs)
 depthwise_leaders_conv2d = depthwise_leaders_convolution2d
