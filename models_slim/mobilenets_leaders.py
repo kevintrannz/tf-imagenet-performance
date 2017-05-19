@@ -95,7 +95,8 @@ def mobilenets_arg_scope(weight_decay=0.00004,
         with slim.arg_scope(
                 [slim.conv2d, slim.separable_conv2d,
                  custom_layers.depthwise_convolution2d,
-                 custom_layers.depthwise_leaders_convolution2d],
+                 custom_layers.depthwise_leaders_convolution2d,
+                 custom_layers.leaders_conv2d],
                 weights_initializer=slim.variance_scaling_initializer(),
                 activation_fn=tf.nn.relu,
                 normalizer_fn=normalizer_fn,
@@ -106,6 +107,7 @@ def mobilenets_arg_scope(weight_decay=0.00004,
                                  slim.max_pool2d, slim.avg_pool2d,
                                  custom_layers.depthwise_convolution2d,
                                  custom_layers.depthwise_leaders_convolution2d,
+                                 custom_layers.leaders_conv2d,
                                  custom_layers.pad2d,
                                  custom_layers.channel_to_last,
                                  custom_layers.spatial_squeeze,
@@ -133,7 +135,7 @@ def mobilenets(inputs,
         the last op containing the log predictions and end_points dict.
     """
     def mobilenet_block(net, num_out_channels, stride=[1, 1],
-                        scope=None):
+                        leaders=False, scope=None):
         """Basic MobileNet block combining:
          - depthwise conv + BN + relu
          - 1x1 conv + BN + relu
@@ -148,19 +150,27 @@ def mobilenets(inputs,
                     depth_multiplier=1, stride=stride,
                     scope='conv_dw')
             else:
-                # Special Depthwise Leader convolution when stride > 1
-                # net = custom_layers.pad2d(net, pad=(1, 1))
-                net = custom_layers.depthwise_leaders_convolution2d(
-                    net,
-                    kernel_size,
-                    padding='SAME',
-                    depth_multiplier=1,
-                    stride=stride,
-                    rates=[1, 2],
-                    pooling_sizes=[3, 1],
-                    pooling_type='MAX',
-                    activation_fn=tf.nn.relu,
-                    scope='conv_lead_dw')
+                if leaders:
+                    # Special Depthwise Leader convolution when stride > 1
+                    # net = custom_layers.pad2d(net, pad=(1, 1))
+                    net = custom_layers.depthwise_leaders_convolution2d(
+                        net,
+                        kernel_size,
+                        padding='SAME',
+                        depth_multiplier=1,
+                        stride=stride,
+                        rates=[1, 2],
+                        pooling_sizes=[3, 1],
+                        pooling_type='MAX',
+                        activation_fn=tf.nn.relu,
+                        scope='conv_lead_dw')
+                else:
+                    # Mimic CAFFE padding if stride > 1.
+                    net = custom_layers.pad2d(net, pad=(1, 1))
+                    net = custom_layers.depthwise_convolution2d(
+                        net, kernel_size, padding='VALID',
+                        depth_multiplier=1, stride=stride,
+                        scope='conv_dw')
             # Pointwise convolution.
             net = slim.conv2d(net, num_out_channels, [1, 1],
                               scope='conv_pw')
@@ -168,8 +178,13 @@ def mobilenets(inputs,
 
     with tf.variable_scope(scope, 'MobileNets', [inputs]) as sc:
         end_points = {}
-        # First full convolution...
-        net = slim.conv2d(inputs, 32, [3, 3], stride=[2, 2], scope='conv1')
+        # First full leades convolution...
+        net = custom_layers.leaders_conv2d(inputs, 32, [3, 3],
+                                           stride=[2, 2],
+                                           rates=[1, 2],
+                                           pooling_sizes=[3, 1],
+                                           pooling_type='MAX',
+                                           scope='lead_conv1')
         # Then, MobileNet blocks!
         net = mobilenet_block(net, 64, scope='block2')
         net = mobilenet_block(net, 128, stride=[2, 2], scope='block3')
