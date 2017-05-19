@@ -13,7 +13,8 @@
 # limitations under the License.
 # ==============================================================================
 """Contains model definitions for MobileNets
-CAFFE-like implementation!
+CAFFE-like implementation! Should reproduce the performance announced,
+i.e. around 0.7032 Top-1 Classification.
 """
 from __future__ import absolute_import
 from __future__ import division
