@@ -57,7 +57,7 @@ class Inceptionv3Model(model.Model):
         with slim.arg_scope(arg_scope):
             return inception_v3(images, num_classes, is_training=is_training)
 
-    def pre_rescaling(images, is_training=True):
+    def pre_rescaling(self, images, is_training=True):
         return inception_pre_rescaling(images, is_training)
 
 
@@ -72,7 +72,7 @@ class Inceptionv4Model(model.Model):
         with slim.arg_scope(arg_scope):
             return inception_v4(images, num_classes, is_training=is_training)
 
-    def pre_rescaling(images, is_training=True):
+    def pre_rescaling(self, images, is_training=True):
         return inception_pre_rescaling(images, is_training)
 
 
