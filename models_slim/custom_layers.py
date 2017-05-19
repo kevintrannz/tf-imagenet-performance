@@ -495,7 +495,6 @@ def depthwise_leaders_convolution2d(
             #                  data_format=data_format)
             net = tf.nn.max_pool(net,
                                  [1, 1],
-                                 pooling_type,
                                  padding='SAME',
                                  strides=[stride_h, stride_w],
                                  data_format=data_format)
@@ -656,7 +655,6 @@ def leaders_convolution2d(
             #                  data_format=data_format)
             net = tf.nn.max_pool(net,
                                  [1, 1],
-                                 pooling_type,
                                  padding='SAME',
                                  strides=[stride_h, stride_w],
                                  data_format=data_format)
