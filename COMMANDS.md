@@ -128,12 +128,12 @@ python -u tf_cnn_benchmarks.py \
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 TRAIN_DIR=/media/paul/DataExt4/ImageNet/training/logs/mobilenet_lead_001
 
-python -u tf_cnn_benchmarks.py \
+python -u tf_cnn_benchmarks_slim.py
     --local_parameter_device=cpu \
     --train_dir=${TRAIN_DIR} \
     --data_dir=${DATASET_DIR} \
     --data_name=imagenet \
-    --model=mobilenet_leaders \
+    --model=mobilenets_leaders \
     --variable_update=parameter_server \
     --num_batches=1000000000000 \
     --summary_verbosity=1 \
@@ -145,7 +145,7 @@ python -u tf_cnn_benchmarks.py \
     --learning_rate_decay_factor=0.94 \
     --num_epochs_per_decay=1.0 \
     --optimizer=rmsprop \
-    --batch_size=256 &
+    --batch_size=80
 
 # =========================================================================== #
 # Benchmark Original vs Slim

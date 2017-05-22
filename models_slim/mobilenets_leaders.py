@@ -199,7 +199,9 @@ def mobilenets(inputs,
             net = mobilenet_block(net, 512, scope='block%i' % (i+8))
         # Final blocks.
         net = mobilenet_block(net, 1024, stride=[2, 2], scope='block13')
+        net = slim.dropout(net, keep_prob=0.8, is_training=is_training)
         net = mobilenet_block(net, 1024, scope='block14')
+        net = slim.dropout(net, keep_prob=0.8, is_training=is_training)
         # Spatial pooling + fully connected layer.
         net = custom_layers.spatial_mean(net, keep_dims=True, scope='spatial_mean14')
         net = slim.conv2d(net, 1000, [1, 1],
