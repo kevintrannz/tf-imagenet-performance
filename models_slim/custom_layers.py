@@ -505,8 +505,12 @@ def depthwise_leaders_convolution2d(
         # Split into two parts: positive and negative extreme.
         net_p = slim.bias_add(net, data_format=data_format, scope='bias_positive')
         net_p = activation_fn(net_p)
+        # net_p = slim.dropout(net_p, 0.5, is_training=True, scope='dropout_p')
+
         net_m = slim.bias_add(-net, data_format=data_format, scope='bias_negative')
         net_m = activation_fn(net_m)
+        # net_m = slim.dropout(net_m, 0.5, is_training=True, scope='dropout_m')
+
         # Concat the final result...
         outputs = concat_channels([net_p, net_m], data_format=data_format)
         return utils.collect_named_outputs(outputs_collections,
@@ -667,8 +671,11 @@ def leaders_convolution2d(
         # Split into two parts: positive and negative extreme.
         net_p = slim.bias_add(net, data_format=data_format, scope='bias_positive')
         net_p = activation_fn(net_p)
+        net_p = slim.dropout(net_p, 0.5, is_training=True, scope='dropout_p')
+
         net_m = slim.bias_add(-net, data_format=data_format, scope='bias_negative')
         net_m = activation_fn(net_m)
+        net_m = slim.dropout(net_m, 0.5, is_training=True, scope='dropout_m')
         # Concat the final result...
         outputs = concat_channels([net_p, net_m], data_format=data_format)
         return utils.collect_named_outputs(outputs_collections,
