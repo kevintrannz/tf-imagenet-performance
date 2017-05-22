@@ -160,7 +160,7 @@ def mobilenets(inputs,
                         stride=stride,
                         rates=[1, 2, 3],
                         pooling_sizes=[5, 3, 1],
-                        pooling_type='MAX',
+                        pooling_type='AVG',
                         activation_fn=tf.nn.relu,
                         scope='conv_lead_dw')
                 else:
@@ -182,7 +182,7 @@ def mobilenets(inputs,
                                            stride=[2, 2],
                                            rates=[1, 2, 3],
                                            pooling_sizes=[5, 3, 1],
-                                           pooling_type='MAX',
+                                           pooling_type='AVG',
                                            scope='lead_conv1')
         # Then, MobileNet blocks!
         net = mobilenet_block(net, 64, scope='block2')

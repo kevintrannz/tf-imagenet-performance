@@ -475,7 +475,7 @@ def depthwise_leaders_convolution2d(
             outputs.append(net)
         # Fuse different rates/scales.
         net = None
-        for o in outputs:
+        for i, o in enumerate(outputs):
             if net is None:
                 # First in the list...
                 net = o
@@ -484,7 +484,7 @@ def depthwise_leaders_convolution2d(
                 if pooling_type == 'MAX':
                     net = tf.maximum(net, o)
                 else:
-                    net += o
+                    net += o * pooling_sizes[i]**2
         # Pooling => for stride > 1
         if stride_h > 1 or stride_w > 1:
             # net = tf.nn.pool(net,
@@ -641,7 +641,7 @@ def leaders_convolution2d(
             outputs.append(net)
         # Fuse different rates/scales.
         net = None
-        for o in outputs:
+        for i, o in enumerate(outputs):
             if net is None:
                 # First in the list...
                 net = o
@@ -650,7 +650,7 @@ def leaders_convolution2d(
                 if pooling_type == 'MAX':
                     net = tf.maximum(net, o)
                 else:
-                    net += o
+                    net += o * pooling_sizes[i]**2
         # Pooling => for stride > 1
         if stride_h > 1 or stride_w > 1:
             # net = tf.nn.pool(net,
