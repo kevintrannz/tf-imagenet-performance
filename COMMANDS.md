@@ -147,6 +147,27 @@ python -u tf_cnn_benchmarks_slim.py
     --optimizer=rmsprop \
     --batch_size=80
 
+
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+CHECKPOINT_PATH=./checkpoints/mobilenets.ckpt
+
+DATASET_DIR=/media/imagenet/dataset
+python -u tf_cnn_benchmarks_slim.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${CHECKPOINT_PATH} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --resize_method=crop_inception \
+    --model=mobilenets_leaders \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=4 \
+    --num_batches=1000 \
+    --batch_size=50
+
+
+
 # =========================================================================== #
 # Benchmark Original vs Slim
 # =========================================================================== #
