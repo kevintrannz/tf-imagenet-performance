@@ -36,6 +36,17 @@ python tf_cnn_benchmarks.py \
     --batch_size=32 \
     --model=resnet50
 
+python -u tf_cnn_benchmarks.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${TRAIN_DIR} \
+    --resize_method=eval \
+    --model=mobilenet \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=1 \
+    --batch_size=10
+
 
 # =========================================================================== #
 # MobileNets training
@@ -109,18 +120,22 @@ nohup python -u tf_cnn_benchmarks.py \
     --optimizer=rmsprop \
     --batch_size=32 &
 
+DATASET_DIR=/media/imagenet/dataset
+TRAIN_DIR=/media/imagenet/training/logs/mobilenet_003
+
 python -u tf_cnn_benchmarks.py \
     --eval=True \
     --local_parameter_device=cpu \
     --train_dir=${TRAIN_DIR} \
     --data_dir=${DATASET_DIR} \
+    --resize_method=eval \
     --data_name=imagenet \
     --model=mobilenet \
     --variable_update=parameter_server \
     --summary_verbosity=1 \
     --num_gpus=4 \
-    --num_batches=391 \
-    --batch_size=32
+    --num_batches=500 \
+    --batch_size=25
 
 # =========================================================================== #
 # MobileNets Leaders training.
@@ -128,7 +143,10 @@ python -u tf_cnn_benchmarks.py \
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 TRAIN_DIR=/media/paul/DataExt4/ImageNet/training/logs/mobilenet_lead_001
 
-python -u tf_cnn_benchmarks_slim.py
+DATASET_DIR=/media/imagenet/dataset
+TRAIN_DIR=/media/imagenet/training/logs/mobilenet_lead_001
+
+python -u tf_cnn_benchmarks_slim.py \
     --local_parameter_device=cpu \
     --train_dir=${TRAIN_DIR} \
     --data_dir=${DATASET_DIR} \
@@ -141,11 +159,11 @@ python -u tf_cnn_benchmarks_slim.py
     --save_model_secs=1200 \
     --num_gpus=1 \
     --weight_decay=0.00001 \
-    --learning_rate=0.1 \
+    --learning_rate=0.02 \
     --learning_rate_decay_factor=0.94 \
     --num_epochs_per_decay=1.0 \
     --optimizer=rmsprop \
-    --batch_size=80
+    --batch_size=64
 
 # =========================================================================== #
 # Benchmark Original vs Slim
