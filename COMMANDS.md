@@ -36,16 +36,59 @@ python tf_cnn_benchmarks.py \
     --batch_size=32 \
     --model=resnet50
 
-python -u tf_cnn_benchmarks.py \
+# =========================================================================== #
+# Inference benchmarking on Inception, MobileNets, GoogleNet, ....
+# =========================================================================== #
+# ~1100 images/sec on GTX Titan X
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v4.ckpt
+python -u tf_cnn_benchmarks_slim.py \
     --eval=True \
     --local_parameter_device=cpu \
     --train_dir=${TRAIN_DIR} \
-    --resize_method=eval \
-    --model=mobilenet \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --model=inceptionv4 \
+    --model_scope=v/InceptionV4 \
+    --ckpt_scope=InceptionV4 \
     --variable_update=parameter_server \
     --summary_verbosity=1 \
     --num_gpus=1 \
-    --batch_size=10
+    --num_batches=100 \
+    --batch_size=32
+
+# ~2100 images/sec on GTX Titan X
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v3.ckpt
+python -u tf_cnn_benchmarks_slim.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${CHECKPOINT_PATH} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --model=inceptionv3 \
+    --model_scope=v/InceptionV3 \
+    --ckpt_scope=InceptionV3 \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=1 \
+    --num_batches=100 \
+    --batch_size=32
+
+# ~7000 images/sec on GTX Titan X
+CHECKPOINT_PATH=./checkpoints/mobilenets.ckpt
+python -u tf_cnn_benchmarks_slim.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${CHECKPOINT_PATH} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --model=mobilenets_caffe \
+    --model_scope=v/MobileNets \
+    --ckpt_scope=MobileNets \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=1 \
+    --num_batches=100 \
+    --batch_size=32
 
 
 # =========================================================================== #
