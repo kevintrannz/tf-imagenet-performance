@@ -67,7 +67,7 @@ def inception_arg_scope(weight_decay=0.00004,
         # collection containing update_ops.
         'updates_collections': tf.GraphKeys.UPDATE_OPS,
         # fuse BN operation.
-        'fused': True,
+        # 'fused': True,
         # Data format.
         'data_format': data_format,
         # Training???
