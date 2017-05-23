@@ -682,3 +682,7 @@ def leaders_convolution2d(
                                            sc.original_name_scope, outputs)
 leaders_conv2d = leaders_convolution2d
 
+
+# =========================================================================== #
+# Block pointwise convolution.
+# =========================================================================== #
