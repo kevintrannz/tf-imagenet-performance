@@ -24,9 +24,9 @@ from models import model
 # pylint: disable=unused-import
 # from models_slim.inception_resnet_v2 import inception_resnet_v2
 # from models_slim.inception_resnet_v2 import inception_resnet_v2_arg_scope
-# from models_slim.inception_v1 import inception_v1
-# from models_slim.inception_v1 import inception_v1_arg_scope
-# from models_slim.inception_v1 import inception_v1_base
+from models_slim.inception_v1 import inception_v1
+from models_slim.inception_v1 import inception_v1_arg_scope
+from models_slim.inception_v1 import inception_v1_base
 from models_slim.inception_v2 import inception_v2
 from models_slim.inception_v2 import inception_v2_arg_scope
 from models_slim.inception_v2 import inception_v2_base
@@ -45,6 +45,38 @@ slim = tf.contrib.slim
 # =========================================================================== #
 # Inception classes.
 # =========================================================================== #
+class Inceptionv1Model(model.Model):
+
+    def __init__(self):
+        super(Inceptionv1Model, self).__init__('inception1', 224, 32, 0.005)
+
+    def inference(self, images, num_classes,
+                  is_training=True, data_format='NCHW', data_type=tf.float32):
+        # Define VGG using functional slim definition
+        arg_scope = inception_v1_arg_scope(is_training=is_training, data_format=data_format)
+        with slim.arg_scope(arg_scope):
+            return inception_v1(images, num_classes, is_training=is_training)
+
+    def pre_rescaling(self, images, is_training=True):
+        return inception_pre_rescaling(images, is_training)
+
+
+class Inceptionv2Model(model.Model):
+
+    def __init__(self):
+        super(Inceptionv2Model, self).__init__('inception2', 224, 32, 0.005)
+
+    def inference(self, images, num_classes,
+                  is_training=True, data_format='NCHW', data_type=tf.float32):
+        # Define VGG using functional slim definition
+        arg_scope = inception_v2_arg_scope(is_training=is_training, data_format=data_format)
+        with slim.arg_scope(arg_scope):
+            return inception_v2(images, num_classes, is_training=is_training)
+
+    def pre_rescaling(self, images, is_training=True):
+        return inception_pre_rescaling(images, is_training)
+
+
 class Inceptionv3Model(model.Model):
 
     def __init__(self):
