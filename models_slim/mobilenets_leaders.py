@@ -158,9 +158,9 @@ def mobilenets(inputs,
                         kernel_size,
                         padding='SAME',
                         stride=stride,
-                        rates=[1, 2],
-                        pooling_sizes=[3, 1],
-                        pooling_type='MAX',
+                        rates=[1, 2, 3],
+                        pooling_sizes=[5, 3, 1],
+                        pooling_type='AVG',
                         activation_fn=tf.nn.relu,
                         scope='conv_lead_dw')
                 else:
@@ -180,9 +180,9 @@ def mobilenets(inputs,
         # First full leades convolution...
         net = custom_layers.leaders_conv2d(inputs, 32, [3, 3],
                                            stride=[2, 2],
-                                           rates=[1, 2],
-                                           pooling_sizes=[3, 1],
-                                           pooling_type='MAX',
+                                           rates=[1, 2, 3],
+                                           pooling_sizes=[5, 3, 1],
+                                           pooling_type='AVG',
                                            scope='lead_conv1')
         # Then, MobileNet blocks!
         net = mobilenet_block(net, 64, scope='block2')
