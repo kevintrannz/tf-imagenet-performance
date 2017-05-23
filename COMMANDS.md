@@ -73,6 +73,42 @@ python -u tf_cnn_benchmarks_slim.py \
     --num_batches=100 \
     --batch_size=32
 
+#  images/sec on GTX Titan X
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v2.ckpt
+python -u tf_cnn_benchmarks_slim.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${CHECKPOINT_PATH} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --data_format=NHWC \
+    --model=inceptionv2 \
+    --model_scope=v/InceptionV2 \
+    --ckpt_scope=InceptionV2 \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=1 \
+    --num_batches=100 \
+    --batch_size=32
+
+# ~6700 images/sec on GTX Titan X
+CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v1.ckpt
+python -u tf_cnn_benchmarks_slim.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${CHECKPOINT_PATH} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --data_format=NHWC \
+    --model=inceptionv1 \
+    --model_scope=v/InceptionV1 \
+    --ckpt_scope=InceptionV1 \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=1 \
+    --num_batches=100 \
+    --batch_size=32
+
 # ~7000 images/sec on GTX Titan X
 CHECKPOINT_PATH=./checkpoints/mobilenets.ckpt
 python -u tf_cnn_benchmarks_slim.py \
