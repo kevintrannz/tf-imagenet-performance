@@ -70,7 +70,7 @@ def mobilenets_pre_rescaling(images, is_training=True):
     return images
 
 
-def mobilenets_arg_scope(weight_decay=0.00004,
+def mobilenets_arg_scope(weight_decay=0.0000004,
                          data_format='NCHW',
                          batch_norm_decay=0.9997,
                          batch_norm_epsilon=0.00001,
@@ -138,7 +138,8 @@ def mobilenets(inputs,
         """
         with tf.variable_scope(scope, 'block', [net]) as sc:
             num_out_channels = int(num_out_channels * width_multiplier)
-            kernel_size = [3, 3]
+            kernel_size = [5, 5]
+            kpad = [2, 2]
             if stride[0] == 1 and stride[1] == 1:
                 # Depthwise convolution with stride=1
                 net = custom_layers.depthwise_convolution2d(
@@ -147,7 +148,7 @@ def mobilenets(inputs,
                     scope='conv_dw')
             else:
                 # Mimic CAFFE padding if stride > 1.
-                net = custom_layers.pad2d(net, pad=(1, 1))
+                net = custom_layers.pad2d(net, pad=kpad)
                 net = custom_layers.depthwise_convolution2d(
                     net, kernel_size, padding='VALID',
                     depth_multiplier=1, stride=stride,
@@ -160,7 +161,8 @@ def mobilenets(inputs,
     with tf.variable_scope(scope, 'MobileNets', [inputs]) as sc:
         end_points = {}
         # First full convolution...
-        net = slim.conv2d(inputs, 32, [3, 3], stride=[2, 2], scope='conv1')
+        ksize = 5
+        net = slim.conv2d(inputs, 32, [ksize, ksize], stride=[2, 2], scope='conv1')
         # Then, MobileNet blocks!
         net = mobilenet_block(net, 64, scope='block2')
         net = mobilenet_block(net, 128, stride=[2, 2], scope='block3')
