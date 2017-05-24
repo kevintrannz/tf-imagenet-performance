@@ -71,7 +71,8 @@ def inception_v2_base(inputs,
 
     with tf.variable_scope(scope, 'InceptionV2', [inputs]):
         with slim.arg_scope(
-                [slim.conv2d, slim.max_pool2d, slim.avg_pool2d, slim.separable_conv2d],
+                [slim.conv2d, slim.max_pool2d, slim.avg_pool2d,
+                 slim.separable_conv2d, custom_layers.separable_conv2d],
                 stride=1, padding='SAME'):
 
             # Note that sizes in the comments below assume an input spatial size of
@@ -87,7 +88,7 @@ def inception_v2_base(inputs,
             #   in_channels * depthwise_multipler <= out_channels
             # so that the separable convolution is not overparameterized.
             depthwise_multiplier = min(int(depth(64) / 3), 8)
-            net = slim.separable_conv2d(
+            net = custom_layers.separable_conv2d(
                     inputs, depth(64), [7, 7], depth_multiplier=depthwise_multiplier,
                     stride=2, weights_initializer=trunc_normal(1.0),
                     scope=end_point)
