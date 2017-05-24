@@ -39,6 +39,7 @@ python tf_cnn_benchmarks.py \
 # =========================================================================== #
 # Inference benchmarking on Inception, MobileNets, GoogleNet, ....
 # =========================================================================== #
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 # ~1100 images/sec on GTX Titan X
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v4.ckpt
 python -u tf_cnn_benchmarks_slim.py \
