@@ -483,7 +483,8 @@ def inception_v2(inputs,
                 logits = slim.conv2d(net, num_classes, [1, 1], activation_fn=None,
                                      normalizer_fn=None, scope='Conv2d_1c_1x1')
                 if spatial_squeeze:
-                    logits = tf.squeeze(logits, [1, 2], name='SpatialSqueeze')
+                    # logits = tf.squeeze(logits, [1, 2], name='SpatialSqueeze')
+                    logits = custom_layers.spatial_squeeze(logits, scope='SpatialSqueeze')
             end_points['Logits'] = logits
             end_points['Predictions'] = prediction_fn(logits, scope='Predictions')
     return logits, end_points
