@@ -138,7 +138,7 @@ def mobilenets(inputs,
         """
         with tf.variable_scope(scope, 'block', [net]) as sc:
             num_out_channels = int(num_out_channels * width_multiplier)
-            kernel_size = [5, 5]
+            kernel_size = [3, 3]
             kpad = [2, 2]
             if stride[0] == 1 and stride[1] == 1:
                 # Depthwise convolution with stride=1
@@ -161,7 +161,7 @@ def mobilenets(inputs,
     with tf.variable_scope(scope, 'MobileNets', [inputs]) as sc:
         end_points = {}
         # First full convolution...
-        ksize = 5
+        ksize = 3
         net = slim.conv2d(inputs, 32, [ksize, ksize], stride=[2, 2], scope='conv1')
         # Then, MobileNet blocks!
         net = mobilenet_block(net, 64, scope='block2')
