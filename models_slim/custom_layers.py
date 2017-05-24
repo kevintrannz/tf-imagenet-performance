@@ -353,7 +353,6 @@ def pad_logits(logits, pad=(0, 0)):
 # =========================================================================== #
 # Separable convolution 2d with data format option.
 # =========================================================================== #
-
 def _model_variable_getter(getter, name, shape=None, dtype=None,
                            initializer=None, regularizer=None, trainable=True,
                            collections=None, caching_device=None,
@@ -536,6 +535,7 @@ def separable_convolution2d(
             outputs = activation_fn(outputs)
         return utils.collect_named_outputs(outputs_collections,
                                            sc.original_name_scope, outputs)
+separable_conv2d = separable_convolution2d
 
 
 # =========================================================================== #
