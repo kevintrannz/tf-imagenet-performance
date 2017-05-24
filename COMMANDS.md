@@ -128,6 +128,60 @@ python -u tf_cnn_benchmarks_slim.py \
 
 
 # =========================================================================== #
+# MobileNets training SLIM version
+# =========================================================================== #
+DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
+TRAIN_DIR=/media/paul/DataExt4/ImageNet/training/logs/mobilenet_002
+
+CUDA_VISIBLE_DEVICES=0,1
+
+DATASET_DIR=/media/imagenet/dataset
+TRAIN_DIR=/media/imagenet/training/logs/mobilenet_003
+
+    --pretrain_dir=${TRAIN_DIR} \
+
+CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
+    --local_parameter_device=cpu \
+    --train_dir=${TRAIN_DIR} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --model=mobilenets_caffe \
+    --variable_update=parameter_server \
+    --num_batches=1000000000000 \
+    --summary_verbosity=1 \
+    --save_summaries_steps=600 \
+    --save_model_secs=1200 \
+    --num_gpus=2 \
+    --weight_decay=0.00001 \
+    --learning_rate=0.1 \
+    --learning_rate_decay_factor=0.94 \
+    --num_epochs_per_decay=1.2 \
+    --optimizer=rmsprop \
+    --batch_size=128 &
+
+
+CUDA_VISIBLE_DEVICES=2,3 nohup python -u tf_cnn_benchmarks_slim.py \
+    --local_parameter_device=cpu \
+    --train_dir=${TRAIN_DIR} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --model=mobilenets_caffe \
+    --variable_update=parameter_server \
+    --num_batches=1000000000000 \
+    --summary_verbosity=1 \
+    --save_summaries_steps=600 \
+    --save_model_secs=1200 \
+    --num_gpus=2 \
+    --weight_decay=0.000001 \
+    --learning_rate=0.02 \
+    --learning_rate_decay_factor=0.94 \
+    --num_epochs_per_decay=2 \
+    --optimizer=rmsprop \
+    --batch_size=128 &
+
+
+
+# =========================================================================== #
 # MobileNets training
 # =========================================================================== #
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
