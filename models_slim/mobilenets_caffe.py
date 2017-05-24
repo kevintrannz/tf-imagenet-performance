@@ -139,7 +139,7 @@ def mobilenets(inputs,
         with tf.variable_scope(scope, 'block', [net]) as sc:
             num_out_channels = int(num_out_channels * width_multiplier)
             kernel_size = [3, 3]
-            kpad = [2, 2]
+            kpad = [1, 1]
             if stride[0] == 1 and stride[1] == 1:
                 # Depthwise convolution with stride=1
                 net = custom_layers.depthwise_convolution2d(
