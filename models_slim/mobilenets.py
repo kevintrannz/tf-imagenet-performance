@@ -154,9 +154,11 @@ def mobilenets(inputs,
     with tf.variable_scope(scope, 'MobileNets', [inputs]) as sc:
         end_points = {}
         # First full convolution...
-        net = custom_layers.pad2d(inputs, pad=padding)
-        net = slim.conv2d(net, 32, kernel_size, stride=[2, 2],
-                          padding='VALID', scope='conv1')
+        # net = custom_layers.pad2d(inputs, pad=padding)
+        # net = slim.conv2d(net, 32, kernel_size, stride=[2, 2],
+        #                   padding='VALID', scope='conv1')
+        net = slim.conv2d(inputs, 32, kernel_size, stride=[2, 2],
+                          padding='SAME', scope='conv1')
         # Then, MobileNet blocks!
         net = mobilenet_block(net, 64, scope='block2')
         net = mobilenet_block(net, 128, stride=[2, 2], scope='block3')
