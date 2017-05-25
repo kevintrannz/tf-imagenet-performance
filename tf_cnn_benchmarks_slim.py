@@ -41,7 +41,6 @@ import preprocessing
 import variable_mgr
 
 from models_slim import nets_factory
-from cnn_builder import ConvNetBuilder
 
 tf.flags.DEFINE_string('model', 'trivial', 'name of the model to run')
 
@@ -71,6 +70,10 @@ tf.flags.DEFINE_integer('autotune_threshold', None,
 tf.flags.DEFINE_integer('num_gpus', 1, 'the number of GPUs to run on')
 tf.flags.DEFINE_integer('display_every', 10,
                         """Number of local steps after which progress is printed out""")
+
+# =========================================================================== #
+# DATASET parameters + pre-processing.
+# =========================================================================== #
 tf.flags.DEFINE_string('data_dir', None, """Path to dataset in TFRecord format
                                             (aka Example protobufs). If not specified,
                                             synthetic data will be used.""")
@@ -90,6 +93,10 @@ tf.flags.DEFINE_boolean('distortions', True,
                         """Enable/disable distortions during
                         image preprocessing. These include bbox and color
                         distortions.""")
+
+# =========================================================================== #
+# Technical stuff: GPU, data format...
+# =========================================================================== #
 tf.flags.DEFINE_string('local_parameter_device', 'gpu',
                        """Device to use as parameter server: cpu or gpu.
                        For distributed training, it can affect where caching
@@ -114,6 +121,10 @@ tf.flags.DEFINE_string('graph_file', None,
                        """Write the model's graph definition to this
                        file. Defaults to binary format unless filename ends
                        in 'txt'.""")
+
+# =========================================================================== #
+# Optimisation parameters.
+# =========================================================================== #
 tf.flags.DEFINE_string('optimizer', 'sgd',
                        'Optimizer to use: momentum or sgd or rmsprop')
 tf.flags.DEFINE_float('learning_rate', None,
@@ -131,7 +142,9 @@ tf.flags.DEFINE_float('gradient_clip', None, """Gradient clipping magnitude.
 tf.flags.DEFINE_float('weight_decay', 0.00004,
                       """Weight decay factor for training.""")
 
+# =========================================================================== #
 # Performance tuning flags.
+# =========================================================================== #
 tf.flags.DEFINE_boolean('winograd_nonfused', True,
                         """Enable/disable using the Winograd non-fused
                         algorithms.""")
@@ -144,6 +157,10 @@ tf.flags.DEFINE_boolean('staged_vars', False,
 tf.flags.DEFINE_boolean('force_gpu_compatible', True,
                         """whether to enable force_gpu_compatible in
                         GPU_Options""")
+
+# =========================================================================== #
+# Managing variables
+# =========================================================================== #
 # The method for managing variables:
 #   parameter_server: variables are stored on a parameter server that holds
 #       the master copy of the variable.  In local execution, a local device
@@ -170,7 +187,10 @@ tf.flags.DEFINE_boolean(
         'use_nccl', True,
         'Whether to use nccl all-reduce primitives where possible')
 
+
+# =========================================================================== #
 # Distributed training flags.
+# =========================================================================== #
 tf.flags.DEFINE_string('job_name', '',
                        'One of "ps", "worker", "".  Empty for local training')
 tf.flags.DEFINE_string('ps_hosts', '', 'Comma-separated list of target hosts')
@@ -180,7 +200,9 @@ tf.flags.DEFINE_integer('task_index', 0, 'Index of task within the job')
 tf.flags.DEFINE_string('server_protocol', 'grpc', 'protocol for servers')
 tf.flags.DEFINE_boolean('cross_replica_sync', True, '')
 
+# =========================================================================== #
 # Summary and Save & load checkpoints.
+# =========================================================================== #
 tf.flags.DEFINE_integer('summary_verbosity', 0,
                         """Verbosity level for summary ops. Pass 0 to disable
                         both summaries and checkpoints.""")
