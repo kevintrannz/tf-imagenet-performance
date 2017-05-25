@@ -197,6 +197,7 @@ python -u tf_cnn_benchmarks_slim.py \
     --weight_decay=0.00001 \
     --learning_rate=0.05 \
     --end_learning_rate=0.00005 \
+    --learning_rate_decay_type=polynomial \
     --num_epochs_per_decay=90 \
     --optimizer=rmsprop \
     --batch_size=128
