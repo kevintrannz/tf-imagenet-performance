@@ -12,18 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 """Benchmark script for TensorFlow.
-
-See the README for more information.
 """
-
 from __future__ import print_function
 
 import os
 import time
 import argparse
 import threading
+from pprint import pprint
 
 import six
 from six.moves import xrange  # pylint: disable=redefined-builtin
@@ -245,6 +242,25 @@ TF_RANDOM_SEED = 1234
 NP_RANDOM_SEED = 4321
 TF_RANDOM_SEED = int(time.time() * 1.1)
 NP_RANDOM_SEED = int(time.time() * 0.7)
+
+
+def print_configuration(flags, save_dir=None):
+    """Print the training configuration.
+    """
+    def print_config(stream=None):
+        print('\n# =========================================================================== #', file=stream)
+        print('# Training | Evaluation flags:', file=stream)
+        print('# =========================================================================== #', file=stream)
+        pprint(flags, stream=stream)
+
+    print_config(None)
+    # Save to a text file as well.
+    if save_dir is not None:
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        path = os.path.join(save_dir, 'training_config.txt')
+        with open(path, "w") as out:
+            print_config(out)
 
 
 class GlobalStepWatcher(threading.Thread):
@@ -542,7 +558,7 @@ class BenchmarkCNN(object):
                     self.data_name = 'flowers'
                 else:
                     raise ValueError('Could not identify name of dataset. '
-                                                     'Please specify with --data_name option.')
+                                     'Please specify with --data_name option.')
             if self.data_name == 'imagenet':
                 self.dataset = datasets.ImagenetData(FLAGS.data_dir)
             elif self.data_name == 'flowers':
@@ -1109,7 +1125,10 @@ def main(_):
     tfversion = cnn_util.tensorflow_version_tuple()
     log_fn('TensorFlow:  %i.%i' % (tfversion[0], tfversion[1]))
 
+    # Print and save stuff
     bench.print_info()
+    print_configuration(FLAGS, FLAGS.train_dir)
+    # Run benchmark...
     bench.run()
 
 

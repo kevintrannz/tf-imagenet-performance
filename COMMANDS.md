@@ -193,7 +193,7 @@ python -u tf_cnn_benchmarks_slim.py \
     --summary_verbosity=1 \
     --save_summaries_steps=600 \
     --save_model_secs=1200 \
-    --num_gpus=2 \
+    --num_gpus=1 \
     --weight_decay=0.00001 \
     --learning_rate=0.05 \
     --end_learning_rate=0.00005 \
