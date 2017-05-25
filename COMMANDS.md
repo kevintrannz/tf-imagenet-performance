@@ -181,6 +181,26 @@ CUDA_VISIBLE_DEVICES=2,3 nohup python -u tf_cnn_benchmarks_slim.py \
     --batch_size=128 &
 
 
+# Linear decay...
+python -u tf_cnn_benchmarks_slim.py \
+    --local_parameter_device=cpu \
+    --train_dir=${TRAIN_DIR} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --model=mobilenets \
+    --variable_update=parameter_server \
+    --num_batches=1000000000000 \
+    --summary_verbosity=1 \
+    --save_summaries_steps=600 \
+    --save_model_secs=1200 \
+    --num_gpus=2 \
+    --weight_decay=0.00001 \
+    --learning_rate=0.05 \
+    --end_learning_rate=0.00005 \
+    --num_epochs_per_decay=90 \
+    --optimizer=rmsprop \
+    --batch_size=128
+
 
 # =========================================================================== #
 # MobileNets training
