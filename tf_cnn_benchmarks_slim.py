@@ -967,7 +967,7 @@ class BenchmarkCNN(object):
                     raise ValueError('Optimizer "%s" was not recognized', FLAGS.optimizer)
 
                 self.variable_mgr.append_apply_gradients_ops(
-                        gradient_state, opt, clipped_grads, training_ops)
+                    gradient_state, opt, clipped_grads, training_ops)
         train_op = tf.group(*(training_ops + update_ops + extra_nccl_ops))
 
         with tf.device(self.cpu_device):
@@ -1127,7 +1127,8 @@ def main(_):
 
     # Print and save stuff
     bench.print_info()
-    print_configuration(FLAGS.__flags, FLAGS.train_dir)
+    if not FLAGS.eval:
+        print_configuration(FLAGS.__flags, FLAGS.train_dir)
     # Run benchmark...
     bench.run()
 

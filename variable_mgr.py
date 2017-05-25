@@ -34,7 +34,7 @@ PS_SHADOW_VAR_PREFIX = 'ps_var'
 class OverrideCachingDevice(object):
 
     def __init__(self, devices, device_for_small_variables,
-                             small_variable_size_threshold):
+                 small_variable_size_threshold):
         self.devices = devices
         self.sizes = [0] * len(self.devices)
         self.device_for_small_variables = device_for_small_variables
