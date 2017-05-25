@@ -1127,7 +1127,7 @@ def main(_):
 
     # Print and save stuff
     bench.print_info()
-    print_configuration(FLAGS, FLAGS.train_dir)
+    print_configuration(FLAGS.__flags, FLAGS.train_dir)
     # Run benchmark...
     bench.run()
 
