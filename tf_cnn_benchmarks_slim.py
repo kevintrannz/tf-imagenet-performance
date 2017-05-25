@@ -123,16 +123,30 @@ tf.flags.DEFINE_string('graph_file', None,
                        in 'txt'.""")
 
 # =========================================================================== #
+# Learning rate parameters.
+# =========================================================================== #
+tf.app.flags.DEFINE_string(
+    'learning_rate_decay_type', 'exponential',
+    'Specifies how the learning rate is decayed. One of "fixed", "exponential",'
+    ' or "polynomial"')
+tf.flags.DEFINE_float(
+    'learning_rate', 0.01,
+    """Initial learning rate for training.""")
+tf.app.flags.DEFINE_float(
+    'end_learning_rate', 0.0001,
+    'The minimal end learning rate used by a polynomial decay learning rate.')
+tf.flags.DEFINE_float(
+    'num_epochs_per_decay', 0,
+    """Steps after which learning rate decays.""")
+tf.flags.DEFINE_float(
+    'learning_rate_decay_factor', 0.94,
+    """Learning rate decay factor.""")
+
+# =========================================================================== #
 # Optimisation parameters.
 # =========================================================================== #
 tf.flags.DEFINE_string('optimizer', 'sgd',
                        'Optimizer to use: momentum or sgd or rmsprop')
-tf.flags.DEFINE_float('learning_rate', None,
-                      """Initial learning rate for training.""")
-tf.flags.DEFINE_float('num_epochs_per_decay', 0,
-                      """Steps after which learning rate decays.""")
-tf.flags.DEFINE_float('learning_rate_decay_factor', 0.94,
-                      """Learning rate decay factor.""")
 tf.flags.DEFINE_float('momentum', 0.9, """Momentum for training.""")
 tf.flags.DEFINE_float('rmsprop_decay', 0.9, """Decay term for RMSProp.""")
 tf.flags.DEFINE_float('rmsprop_momentum', 0.9, """Momentum in RMSProp.""")
@@ -346,7 +360,6 @@ def get_mode_from_flags():
     """Determine which mode this script is running."""
     if FLAGS.forward_only and FLAGS.eval:
         raise ValueError('Only one of forward_only and eval flags is true')
-
     if FLAGS.eval:
         return 'evaluation'
     if FLAGS.forward_only:
@@ -406,7 +419,7 @@ def get_perf_timing_str(batch_size, step_train_times, scale=1):
 
 def variables_to_restore(l_vars, model_scope=None, ckpt_scope=None):
     """Transform a list of variables to a dictionary
-    of variables to restore.
+    of variables to restore, modifying the main scope properly.
     """
     if model_scope is None or ckpt_scope is None:
         d = {v.op.name: v for v in l_vars}
@@ -416,6 +429,8 @@ def variables_to_restore(l_vars, model_scope=None, ckpt_scope=None):
 
 
 def load_checkpoint(saver, sess, ckpt_dir):
+    """Restore/load a checkpoint from a directory or a file.
+    """
     # Pointing directly to a file?
     if not os.path.isdir(ckpt_dir):
         saver.restore(sess, ckpt_dir)
@@ -447,9 +462,42 @@ def load_checkpoint(saver, sess, ckpt_dir):
         raise RuntimeError('No checkpoint file found.')
 
 
+def configure_learning_rate(num_samples_per_epoch, batch_size, global_step):
+    """Configures the learning rate.
+    Args:
+        num_samples_per_epoch: The number of samples in each epoch of training.
+        global_step: The global_step tensor.
+    Returns:
+        A `Tensor` representing the learning rate.
+    """
+    # Decay parameter.
+    num_batches_per_epoch = num_samples_per_epoch / batch_size
+    decay_steps = int(num_batches_per_epoch * FLAGS.num_epochs_per_decay)
+
+    if FLAGS.learning_rate_decay_type == 'exponential':
+        return tf.train.exponential_decay(FLAGS.learning_rate,
+                                          global_step,
+                                          decay_steps,
+                                          FLAGS.learning_rate_decay_factor,
+                                          staircase=True,
+                                          name='exponential_decay_learning_rate')
+    elif FLAGS.learning_rate_decay_type == 'fixed':
+        return tf.constant(FLAGS.learning_rate, name='fixed_learning_rate')
+    elif FLAGS.learning_rate_decay_type == 'polynomial':
+        return tf.train.polynomial_decay(FLAGS.learning_rate,
+                                         global_step,
+                                         decay_steps,
+                                         FLAGS.end_learning_rate,
+                                         power=1.0,
+                                         cycle=False,
+                                         name='polynomial_decay_learning_rate')
+    else:
+        raise ValueError('learning_rate_decay_type [%s] was not recognized',
+                         FLAGS.learning_rate_decay_type)
+
+
 class BenchmarkCNN(object):
     """Class for benchmarking a cnn network."""
-
     def __init__(self):
         self.model = FLAGS.model
         # self.model_conf = model_config.get_model_config(self.model)
@@ -876,15 +924,11 @@ class BenchmarkCNN(object):
 
                 gradient_clip = FLAGS.gradient_clip
                 learning_rate = self.model_conf.get_learning_rate()
+                # Configure the learning rate, if decaying...
                 if self.dataset and FLAGS.num_epochs_per_decay > 0:
-                    num_batches_per_epoch = (
-                            self.dataset.num_examples_per_epoch() / self.batch_size)
-                    decay_steps = int(num_batches_per_epoch * FLAGS.num_epochs_per_decay)
-
-                    # Decay the learning rate exponentially based on the number of steps.
-                    learning_rate = tf.train.exponential_decay(
-                            FLAGS.learning_rate, global_step,
-                            decay_steps, FLAGS.learning_rate_decay_factor, staircase=True)
+                    learning_rate = configure_learning_rate(
+                        self.dataset.num_examples_per_epoch(),
+                        self.batch_size, global_step)
 
                 if gradient_clip is not None:
                     clipped_grads = [
