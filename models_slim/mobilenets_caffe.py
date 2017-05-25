@@ -130,6 +130,9 @@ def mobilenets(inputs,
     Returns:
         the last op containing the log predictions and end_points dict.
     """
+    kernel_size = [3, 3]
+    padding = [(kernel_size[0]-1)//2, (kernel_size[1]-1)//2]
+
     def mobilenet_block(net, num_out_channels, stride=[1, 1],
                         scope=None):
         """Basic MobileNet block combining:
@@ -138,8 +141,6 @@ def mobilenets(inputs,
         """
         with tf.variable_scope(scope, 'block', [net]) as sc:
             num_out_channels = int(num_out_channels * width_multiplier)
-            kernel_size = [3, 3]
-            kpad = [1, 1]
             if stride[0] == 1 and stride[1] == 1:
                 # Depthwise convolution with stride=1
                 net = custom_layers.depthwise_convolution2d(
@@ -148,7 +149,7 @@ def mobilenets(inputs,
                     scope='conv_dw')
             else:
                 # Mimic CAFFE padding if stride > 1.
-                net = custom_layers.pad2d(net, pad=kpad)
+                net = custom_layers.pad2d(net, pad=padding)
                 net = custom_layers.depthwise_convolution2d(
                     net, kernel_size, padding='VALID',
                     depth_multiplier=1, stride=stride,
@@ -161,8 +162,10 @@ def mobilenets(inputs,
     with tf.variable_scope(scope, 'MobileNets', [inputs]) as sc:
         end_points = {}
         # First full convolution...
-        ksize = 3
-        net = slim.conv2d(inputs, 32, [ksize, ksize], stride=[2, 2], scope='conv1')
+        net = custom_layers.pad2d(inputs, pad=padding)
+        net = slim.conv2d(net, 32, kernel_size, stride=[2, 2],
+                          padding='VALID', scope='conv1')
+        # net = slim.conv2d(inputs, 32, [ksize, ksize], stride=[2, 2], scope='conv1')
         # Then, MobileNet blocks!
         net = mobilenet_block(net, 64, scope='block2')
         net = mobilenet_block(net, 128, stride=[2, 2], scope='block3')
