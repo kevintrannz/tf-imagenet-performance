@@ -37,16 +37,19 @@ _SCALING = 0.017
 # MobileNets class.
 # =========================================================================== #
 class MobileNetsModel(model.Model):
-    def __init__(self, model='mobilenets', width_multiplier=1.0):
+    def __init__(self, model='mobilenets', width_multiplier=1.0, kernel_size=[3, 3]):
         super(MobileNetsModel, self).__init__(model, 224, 64, 0.005)
         self.width_multiplier = width_multiplier
+        self.kernel_size = kernel_size
 
     def inference(self, images, num_classes,
                   is_training=True, data_format='NCHW', data_type=tf.float32):
         # Define VGG using functional slim definition
         arg_scope = mobilenets_arg_scope(is_training=is_training, data_format=data_format)
         with slim.arg_scope(arg_scope):
-            return mobilenets(images, num_classes, self.width_multiplier,
+            return mobilenets(images, num_classes,
+                              self.kernel_size,
+                              self.width_multiplier,
                               is_training=is_training)
 
     def pre_rescaling(self, images, is_training=True):
@@ -118,6 +121,7 @@ def mobilenets_arg_scope(weight_decay=0.00004,
 
 def mobilenets(inputs,
                num_classes=1000,
+               kernel_size=[3, 3],
                width_multiplier=1.0,
                is_training=True,
                dropout_keep_prob=0.5,

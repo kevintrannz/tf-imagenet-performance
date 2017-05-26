@@ -24,25 +24,62 @@ from models_slim import custom_layers
 
 slim = tf.contrib.slim
 
+# VGG Caffe mean parameters.
+_R_MEAN = 123.68
+_G_MEAN = 116.78
+_B_MEAN = 103.94
+_SCALING = 0.017
+
 
 # =========================================================================== #
-# MobileNets class.
+# MobileNets classes.
 # =========================================================================== #
 class MobileNetsModel(model.Model):
-    def __init__(self, model='mobilenets', width_multiplier=1.0):
+    def __init__(self, model='mobilenets',
+                 kernel_size=[3, 3], width_multiplier=1.0, dropouts=[0.5]):
         super(MobileNetsModel, self).__init__(model, 224, 64, 0.005)
         self.width_multiplier = width_multiplier
+        self.kernel_size = kernel_size
+        self.dropouts = dropouts
 
     def inference(self, images, num_classes,
                   is_training=True, data_format='NCHW', data_type=tf.float32):
         # Define VGG using functional slim definition
         arg_scope = mobilenets_arg_scope(is_training=is_training, data_format=data_format)
         with slim.arg_scope(arg_scope):
-            return mobilenets(images, num_classes, self.width_multiplier,
+            return mobilenets(images, num_classes,
+                              self.kernel_size,
+                              self.width_multiplier,
+                              self.dropouts,
                               is_training=is_training)
 
     def pre_rescaling(self, images, is_training=True):
         return mobilenets_pre_rescaling(images, is_training)
+
+
+class MobileNetsCaffeModel(model.Model):
+    """Caffe variation of MobileNets, with VGG pre-rescaling.
+    """
+    def __init__(self, model='mobilenets',
+                 kernel_size=[3, 3], width_multiplier=1.0, dropouts=[0.5]):
+        super(MobileNetsModel, self).__init__(model, 224, 64, 0.005)
+        self.width_multiplier = width_multiplier
+        self.kernel_size = kernel_size
+        self.dropouts = dropouts
+
+    def inference(self, images, num_classes,
+                  is_training=True, data_format='NCHW', data_type=tf.float32):
+        # Define VGG using functional slim definition
+        arg_scope = mobilenets_arg_scope(is_training=is_training, data_format=data_format)
+        with slim.arg_scope(arg_scope):
+            return mobilenets(images, num_classes,
+                              self.kernel_size,
+                              self.width_multiplier,
+                              self.dropouts,
+                              is_training=is_training)
+
+    def pre_rescaling(self, images, is_training=True):
+        return mobilenets_caffe_pre_rescaling(images, is_training)
 
 
 # =========================================================================== #
@@ -56,6 +93,17 @@ def mobilenets_pre_rescaling(images, is_training=True):
     images *= 1. / 255.
     images = tf.subtract(images, 0.5)
     images = tf.multiply(images, 2.0)
+    return images
+
+
+def mobilenets_caffe_pre_rescaling(images, is_training=True):
+    """Rescales an images Tensor before feeding the network
+    Input tensor supposed to be in [0, 256) range.
+    """
+    # Rescale using VGG oarameters.
+    mean = tf.constant([_R_MEAN, _G_MEAN, _B_MEAN], dtype=images.dtype)
+    images = images - mean
+    images = images * _SCALING
     return images
 
 
@@ -104,10 +152,11 @@ def mobilenets_arg_scope(weight_decay=0.00004,
 
 def mobilenets(inputs,
                num_classes=1000,
+               kernel_size=[3, 3],
                width_multiplier=1.0,
-               is_training=True,
-               dropout_keep_prob=0.5,
+               dropouts=[0.5],
                pad_logits=True,
+               is_training=True,
                scope='MobileNets'):
     """MobileNets implementation.
     Args:
@@ -122,7 +171,7 @@ def mobilenets(inputs,
         the last op containing the log predictions and end_points dict.
     """
     # MobileNets kernel size and padding (for layers with stride > 1).
-    kernel_size = [3, 3]
+    # kernel_size = [3, 3]
     padding = [(kernel_size[0]-1)//2, (kernel_size[1]-1)//2]
 
     def mobilenet_block(net, num_out_channels, stride=[1, 1],
@@ -187,3 +236,48 @@ def mobilenets(inputs,
             net = custom_layers.pad_logits(net, pad=(num_classes - 1000, 0))
         return net, end_points
 mobilenets.default_image_size = 224
+
+
+# =========================================================================== #
+# Additional sub-models!
+# =========================================================================== #
+def mobilenets_k5(inputs,
+                  num_classes=1000,
+                  width_multiplier=1.0,
+                  dropouts=[0.5],
+                  pad_logits=True,
+                  is_training=True,
+                  scope='MobileNets'):
+    """MobileNets with 5x5 kernel size.
+    """
+    return mobilenets(
+        inputs,
+        num_classes=num_classes,
+        kernel_size=[5, 5],
+        width_multiplier=width_multiplier,
+        dropouts=dropouts,
+        pad_logits=pad_logits,
+        is_training=is_training,
+        scope=scope)
+mobilenets_k5.default_image_size = 224
+
+
+def mobilenets_k7(inputs,
+                  num_classes=1000,
+                  width_multiplier=1.0,
+                  dropouts=[0.5],
+                  pad_logits=True,
+                  is_training=True,
+                  scope='MobileNets'):
+    """MobileNets with 7x7 kernel size.
+    """
+    return mobilenets(
+        inputs,
+        num_classes=num_classes,
+        kernel_size=[7, 7],
+        width_multiplier=width_multiplier,
+        dropouts=dropouts,
+        pad_logits=pad_logits,
+        is_training=is_training,
+        scope=scope)
+mobilenets_k7.default_image_size = 224

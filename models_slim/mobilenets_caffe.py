@@ -130,7 +130,7 @@ def mobilenets(inputs,
     Returns:
         the last op containing the log predictions and end_points dict.
     """
-    kernel_size = [5, 5]
+    kernel_size = [3, 3]
     padding = [(kernel_size[0]-1)//2, (kernel_size[1]-1)//2]
 
     def mobilenet_block(net, num_out_channels, stride=[1, 1],
