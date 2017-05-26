@@ -127,6 +127,16 @@ python -u tf_cnn_benchmarks_slim.py \
     --num_batches=100 \
     --batch_size=32
 
+# Forward only benchmarks.
+python -u tf_cnn_benchmarks_slim.py \
+    --forward_only=True \
+    --local_parameter_device=cpu \
+    --model=inceptionv1 \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=1 \
+    --num_batches=100 \
+    --batch_size=32
 
 # =========================================================================== #
 # MobileNets training SLIM version
