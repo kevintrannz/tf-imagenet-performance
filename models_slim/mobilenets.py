@@ -62,7 +62,7 @@ class MobileNetsCaffeModel(model.Model):
     """
     def __init__(self, model='mobilenets',
                  kernel_size=[3, 3], width_multiplier=1.0, dropouts=[0.5]):
-        super(MobileNetsModel, self).__init__(model, 224, 64, 0.005)
+        super(MobileNetsCaffeModel, self).__init__(model, 224, 64, 0.005)
         self.width_multiplier = width_multiplier
         self.kernel_size = kernel_size
         self.dropouts = dropouts

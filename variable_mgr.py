@@ -428,7 +428,7 @@ class VariableMgrLocalFetchFromStagedPS(VariableMgrLocalFetchFromPS):
         # ops used for that variable on that device:
         #   staging_vars_on_devices[device_num][var_name] == (put_op, get_op)
         self.staging_vars_on_devices = [dict() for _ in
-                                                                        self.benchmark_cnn.raw_devices]
+                                        self.benchmark_cnn.raw_devices]
 
     def supports_staged_vars(self):
         return True
@@ -544,7 +544,7 @@ class VariableMgrDistributedFetchFromStagedPS(
     def __init__(self, benchmark_cnn):
         super(VariableMgrDistributedFetchFromStagedPS, self).__init__(benchmark_cnn)
         self.staging_vars_on_devices = [dict() for _ in
-                                                                        self.benchmark_cnn.raw_devices]
+                                        self.benchmark_cnn.raw_devices]
         self.staged_vars_on_cpu = {}
 
     def create_outer_variable_scope(self, device_num):
@@ -593,13 +593,13 @@ class VariableMgrDistributedReplicated(VariableMgr):
             my_name = PS_SHADOW_VAR_PREFIX + '/' + v.name
             if my_name.endswith(':0'): my_name = my_name[:-2]
             new_v = tf.get_variable(my_name, dtype=v.dtype.base_dtype,
-                                                            initializer=v.initial_value,
-                                                            trainable=True)
+                                    initializer=v.initial_value,
+                                    trainable=True)
             avg_grads[i] = (g, new_v)
         return avg_grads
 
     def append_apply_gradients_ops(self, gradient_state, opt,
-                                                                 grads, training_ops):
+                                   grads, training_ops):
         device_grads = gradient_state  # From 2nd result of preprocess_device_grads.
 
         # For each variable, apply the combined gradients for this server on

@@ -570,7 +570,7 @@ class BenchmarkCNN(object):
         if self.job_name:
             self.task_index = FLAGS.task_index
             self.cluster = tf.train.ClusterSpec({'ps': self.ps_hosts,
-                                                                                     'worker': self.worker_hosts})
+                                                 'worker': self.worker_hosts})
             self.server = None
 
             if not self.server:
@@ -609,8 +609,7 @@ class BenchmarkCNN(object):
         if FLAGS.variable_update == 'parameter_server':
             if self.job_name:
                 if not FLAGS.staged_vars:
-                    self.variable_mgr = variable_mgr.VariableMgrDistributedFetchFromPS(
-                            self)
+                    self.variable_mgr = variable_mgr.VariableMgrDistributedFetchFromPS(self)
                 else:
                     self.variable_mgr = (
                             variable_mgr.VariableMgrDistributedFetchFromStagedPS(self))
@@ -618,14 +617,12 @@ class BenchmarkCNN(object):
                 if not FLAGS.staged_vars:
                     self.variable_mgr = variable_mgr.VariableMgrLocalFetchFromPS(self)
                 else:
-                    self.variable_mgr = variable_mgr.VariableMgrLocalFetchFromStagedPS(
-                            self)
+                    self.variable_mgr = variable_mgr.VariableMgrLocalFetchFromStagedPS(self)
         elif FLAGS.variable_update == 'replicated':
             if self.job_name:
                 raise ValueError('Invalid --variable_update in distributed mode: %s' %
                                  FLAGS.variable_update)
-            self.variable_mgr = variable_mgr.VariableMgrLocalReplicated(
-                    self, FLAGS.use_nccl)
+            self.variable_mgr = variable_mgr.VariableMgrLocalReplicated(self, FLAGS.use_nccl)
         elif FLAGS.variable_update == 'distributed_replicated':
             if not self.job_name:
                 raise ValueError('Invalid --variable_update in local mode: %s' %
