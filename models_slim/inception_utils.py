@@ -17,8 +17,7 @@
 Usage of arg scope:
     with slim.arg_scope(inception_arg_scope()):
         logits, end_points = inception.inception_v3(images, num_classes,
-                                                                                                is_training=is_training)
-
+                                                    is_training=is_training)
 """
 from __future__ import absolute_import
 from __future__ import division
@@ -69,7 +68,7 @@ def inception_arg_scope(weight_decay=0.00004,
         # collection containing update_ops.
         'updates_collections': tf.GraphKeys.UPDATE_OPS,
         # fuse BN operation.
-        # 'fused': True,
+        'fused': True,
         # Data format.
         'data_format': data_format,
         # Training???
