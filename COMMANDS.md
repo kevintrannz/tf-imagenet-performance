@@ -42,6 +42,7 @@ python tf_cnn_benchmarks.py \
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 # ~1100 images/sec on GTX Titan X
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v4.ckpt
+CHECKPOINT_PATH=./checkpoints/inception_v4_fused.ckpt
 python -u tf_cnn_benchmarks_slim.py \
     --eval=True \
     --local_parameter_device=cpu \
@@ -59,6 +60,7 @@ python -u tf_cnn_benchmarks_slim.py \
 
 # ~2100 images/sec on GTX Titan X
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v3.ckpt
+CHECKPOINT_PATH=./checkpoints/inception_v3_fused.ckpt
 python -u tf_cnn_benchmarks_slim.py \
     --eval=True \
     --local_parameter_device=cpu \
@@ -76,13 +78,14 @@ python -u tf_cnn_benchmarks_slim.py \
 
 #  images/sec on GTX Titan X
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v2.ckpt
+CHECKPOINT_PATH=./checkpoints/inception_v2_fused.ckpt
 python -u tf_cnn_benchmarks_slim.py \
     --eval=True \
     --local_parameter_device=cpu \
     --train_dir=${CHECKPOINT_PATH} \
     --data_dir=${DATASET_DIR} \
     --data_name=imagenet \
-    --data_format=NHWC \
+    --data_format=NCHW \
     --model=inceptionv2 \
     --model_scope=v/InceptionV2 \
     --ckpt_scope=InceptionV2 \
@@ -94,13 +97,14 @@ python -u tf_cnn_benchmarks_slim.py \
 
 # ~6700 images/sec on GTX Titan X
 CHECKPOINT_PATH=/media/paul/DataExt4/ImageNet/Training/ckpts/inception_v1.ckpt
+CHECKPOINT_PATH=./checkpoints/inception_v1_fused.ckpt
 python -u tf_cnn_benchmarks_slim.py \
     --eval=True \
     --local_parameter_device=cpu \
     --train_dir=${CHECKPOINT_PATH} \
     --data_dir=${DATASET_DIR} \
     --data_name=imagenet \
-    --data_format=NHWC \
+    --data_format=NCHW \
     --model=inceptionv1 \
     --model_scope=v/InceptionV1 \
     --ckpt_scope=InceptionV1 \
