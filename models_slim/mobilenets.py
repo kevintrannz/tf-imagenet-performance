@@ -91,8 +91,11 @@ def mobilenets_pre_rescaling(images, is_training=True):
     """
     # Rescale to [-1,1] instead of [0, 1)
     # images *= 1. / 255.
-    # images = tf.subtract(images, 0.5 / 255.)
+    # images = tf.subtract(images, 0.5)
     # images = tf.multiply(images, 2.0)
+    # images *= 1. / 255.
+    images -= 127.5
+    images *= 1. / 127.5
     return images
 
 
