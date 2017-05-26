@@ -25,7 +25,7 @@ from models_slim import vgg
 from models_slim import vgg_fc
 from models_slim import mobilenets
 from models_slim import mobilenets_pool
-from models_slim import mobilenets_caffe
+# from models_slim import mobilenets_caffe
 from models_slim import mobilenets_leaders
 
 slim = tf.contrib.slim
