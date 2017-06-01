@@ -292,19 +292,19 @@ nohup python -u tf_cnn_benchmarks.py \
 DATASET_DIR=/media/imagenet/dataset
 TRAIN_DIR=/media/imagenet/training/logs/mobilenet_003
 
-python -u tf_cnn_benchmarks.py \
+CUDA_VISIBLE_DEVICES=2,3 python -u tf_cnn_benchmarks.py \
     --eval=True \
     --local_parameter_device=cpu \
     --train_dir=${TRAIN_DIR} \
     --data_dir=${DATASET_DIR} \
-    --resize_method=eval \
+    --resize_method=crop_inception \
     --data_name=imagenet \
     --model=mobilenet \
     --variable_update=parameter_server \
     --summary_verbosity=1 \
-    --num_gpus=4 \
+    --num_gpus=2 \
     --num_batches=500 \
-    --batch_size=25
+    --batch_size=50
 
 # =========================================================================== #
 # MobileNets Leaders training.
