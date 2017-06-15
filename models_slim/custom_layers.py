@@ -166,7 +166,8 @@ def concat_channels(l_inputs, data_format='NHWC', scope=None):
 
 
 @add_arg_scope
-def spatial_mean(inputs, keep_dims=False, data_format='NHWC', scope=None):
+def spatial_mean(inputs, scaling=None, keep_dims=False,
+                 data_format='NHWC', scope=None):
     """Average tensor along spatial dimensions.
 
     Args:

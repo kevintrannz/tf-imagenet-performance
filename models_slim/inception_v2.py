@@ -89,9 +89,9 @@ def inception_v2_base(inputs,
             # so that the separable convolution is not overparameterized.
             depthwise_multiplier = min(int(depth(64) / 3), 8)
             net = custom_layers.separable_conv2d(
-                    inputs, depth(64), [7, 7], depth_multiplier=depthwise_multiplier,
-                    stride=2, weights_initializer=trunc_normal(1.0),
-                    scope=end_point)
+                inputs, depth(64), [7, 7], depth_multiplier=depthwise_multiplier,
+                stride=2, weights_initializer=trunc_normal(1.0),
+                scope=end_point)
             end_points[end_point] = net
             if end_point == final_endpoint: return net, end_points
             # 112 x 112 x 64
@@ -475,9 +475,10 @@ def inception_v2(inputs,
                     depth_multiplier=depth_multiplier)
             with tf.variable_scope('Logits'):
                 # kernel_size = _reduced_kernel_size_for_small_input(net, [7, 7])
-                ksize = custom_layers.ksize_for_squeezing(net, [7, 7])
-                net = slim.avg_pool2d(net, ksize, padding='VALID',
-                                      scope='AvgPool_1a_{}x{}'.format(*ksize))
+                # ksize = custom_layers.ksize_for_squeezing(net, [7, 7])
+                # net = slim.avg_pool2d(net, ksize, padding='VALID',
+                #                       scope='AvgPool_1a_{}x{}'.format(*ksize))
+                net = custom_layers.spatial_mean(net, keep_dims=True, scope='AvgPool_1a_7x7')
                 # 1 x 1 x 1024
                 net = slim.dropout(net, keep_prob=dropout_keep_prob, scope='Dropout_1b')
                 logits = slim.conv2d(net, num_classes, [1, 1], activation_fn=None,
