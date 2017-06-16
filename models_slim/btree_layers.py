@@ -93,7 +93,6 @@ def translate_channels(inputs, delta=0, data_format='NHWC', scope=None):
 def conv2d_1x1_split(
         inputs,
         num_outputs,
-        kernel_size,
         stride=1,
         split=1,
         padding='SAME',

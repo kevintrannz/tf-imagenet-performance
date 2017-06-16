@@ -27,6 +27,7 @@ from models_slim import mobilenets
 from models_slim import mobilenets_pool
 # from models_slim import mobilenets_caffe
 from models_slim import mobilenets_leaders
+from models_slim import mobilenets_btree
 
 slim = tf.contrib.slim
 
@@ -43,6 +44,7 @@ networks_map = {'vgg11': vgg.vgg_a,
                 'mobilenets': mobilenets.mobilenets,
                 'mobilenets_k5': mobilenets.mobilenets_k5,
                 'mobilenets_k7': mobilenets.mobilenets_k7,
+                'mobilenets_btree': mobilenets_btree.mobilenets_btree,
                 'mobilenets_caffe': mobilenets.mobilenets,
                 'mobilenets_pool': mobilenets_pool.mobilenets,
                 'mobilenets_leaders': mobilenets_leaders.mobilenets,
@@ -61,6 +63,7 @@ arg_scopes_map = {'vgg11': vgg.vgg_arg_scope,
                   'mobilenets': mobilenets.mobilenets_arg_scope,
                   'mobilenets_k5': mobilenets.mobilenets_arg_scope,
                   'mobilenets_k7': mobilenets.mobilenets_arg_scope,
+                  'mobilenets_btree': mobilenets_btree.mobilenets_arg_scope,
                   'mobilenets_pool': mobilenets_pool.mobilenets_arg_scope,
                   'mobilenets_caffe': mobilenets.mobilenets_arg_scope,
                   'mobilenets_leaders': mobilenets_leaders.mobilenets_arg_scope,
@@ -79,6 +82,7 @@ models_map = {'vgg11': vgg.Vgg11Model(),
               'mobilenets': mobilenets.MobileNetsModel(),
               'mobilenets_k5': mobilenets.MobileNetsModel(kernel_size=[5, 5]),
               'mobilenets_k7': mobilenets.MobileNetsModel(kernel_size=[7, 7]),
+              'mobilenets_btree': mobilenets_btree.MobileNetsBTreeModel(),
               'mobilenets_caffe': mobilenets.MobileNetsCaffeModel(),
               'mobilenets_caffe_k5': mobilenets.MobileNetsCaffeModel(kernel_size=[5, 5]),
               'mobilenets_pool': mobilenets.MobileNetsModel(),
