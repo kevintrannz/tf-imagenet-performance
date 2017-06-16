@@ -160,6 +160,7 @@ def mobilenets(inputs,
                dropouts=[0.5],
                pad_logits=True,
                is_training=True,
+               reuse=None,
                scope='MobileNets'):
     """MobileNets implementation.
     Args:
@@ -203,7 +204,7 @@ def mobilenets(inputs,
                               scope='conv_pw')
             return net
 
-    with tf.variable_scope(scope, 'MobileNets', [inputs]) as sc:
+    with tf.variable_scope(scope, 'MobileNets', [inputs], reuse=reuse) as sc:
         end_points = {}
         # First full convolution...
         net = custom_layers.pad2d(inputs, pad=padding)
