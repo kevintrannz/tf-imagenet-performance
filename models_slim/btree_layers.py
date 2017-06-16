@@ -52,7 +52,7 @@ def split_channels(inputs, split=1, data_format='NHWC', scope=None):
       inputs: List Tensors;
       data_format: NHWC or NCHW.
     """
-    with tf.name_scope(scope, 'split_channels', inputs):
+    with tf.name_scope(scope, 'split_channels', [inputs]):
         inshape = inputs.get_shape().as_list()
         l_inputs = []
         if data_format == 'NHWC':
@@ -74,7 +74,7 @@ def split_channels(inputs, split=1, data_format='NHWC', scope=None):
 
 @add_arg_scope
 def translate_channels(inputs, delta=0, data_format='NHWC', scope=None):
-    with tf.name_scope(scope, 'translate_channels', inputs):
+    with tf.name_scope(scope, 'translate_channels', [inputs]):
         if data_format == 'NHWC':
             in0 = inputs[:, :, :, :-delta]
             in1 = inputs[:, :, :, -delta:]
