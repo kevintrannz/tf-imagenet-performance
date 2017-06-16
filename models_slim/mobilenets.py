@@ -226,7 +226,7 @@ def mobilenets(inputs,
         net = mobilenet_block(net, 1024, scope='block14')
         # Spatial pooling + fully connected layer.
         net = custom_layers.spatial_mean(net, keep_dims=True, scope='spatial_mean14')
-        net = slim.conv2d(net, 1000, [1, 1],
+        net = slim.conv2d(net, num_classes, [1, 1],
                           activation_fn=None,
                           normalizer_fn=None,
                           normalizer_params=None,
