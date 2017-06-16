@@ -527,6 +527,8 @@ def inception_v3(inputs,
                 ksize = custom_layers.ksize_for_squeezing(net, [8, 8])
                 net = slim.avg_pool2d(net, ksize, padding='VALID',
                                       scope='AvgPool_1a_{}x{}'.format(*ksize))
+                # net = custom_layers.spatial_mean(net, keep_dims=True, scope='AvgPool_1a_7x7')
+
                 # 1 x 1 x 2048
                 net = slim.dropout(net, keep_prob=dropout_keep_prob, scope='Dropout_1b')
                 end_points['PreLogits'] = net
