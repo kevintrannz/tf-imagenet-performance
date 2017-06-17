@@ -221,7 +221,13 @@ python -u tf_cnn_benchmarks_slim.py \
 # =========================================================================== #
 DATASET_DIR=/media/paul/DataExt4/ImageNet/Dataset
 TRAIN_DIR=/media/paul/DataExt4/ImageNet/training/logs/mobilenet_btree_001
-python -u tf_cnn_benchmarks_slim.py \
+
+CUDA_VISIBLE_DEVICES=0,1
+
+DATASET_DIR=/media/imagenet/dataset
+TRAIN_DIR=/media/imagenet/training/logs/mobilenet_btree_001
+
+CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
     --local_parameter_device=cpu \
     --train_dir=${TRAIN_DIR} \
     --data_dir=${DATASET_DIR} \
@@ -239,7 +245,7 @@ python -u tf_cnn_benchmarks_slim.py \
     --learning_rate_decay_type=polynomial \
     --num_epochs_per_decay=90 \
     --optimizer=rmsprop \
-    --batch_size=48
+    --batch_size=128 &
 
 
 # =========================================================================== #
