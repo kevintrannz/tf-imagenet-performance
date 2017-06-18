@@ -238,14 +238,17 @@ CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
     --summary_verbosity=1 \
     --save_summaries_steps=600 \
     --save_model_secs=1200 \
-    --num_gpus=1 \
+    --num_gpus=2 \
     --weight_decay=0.00001 \
-    --learning_rate=0.05 \
-    --end_learning_rate=0.00005 \
+    --learning_rate=0.1 \
+    --end_learning_rate=0.00001 \
     --learning_rate_decay_type=polynomial \
-    --num_epochs_per_decay=90 \
+    --num_epochs_per_decay=120 \
     --optimizer=rmsprop \
-    --batch_size=128 &
+    --batch_size=256 &
+
+DATASET_DIR=/media/imagenet/dataset
+TRAIN_DIR=/media/imagenet/training/logs/mobilenet_btree_001
 
 CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
     --local_parameter_device=cpu \
@@ -264,7 +267,7 @@ CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
     --learning_rate_decay_factor=0.94 \
     --num_epochs_per_decay=1.0 \
     --optimizer=rmsprop \
-    --batch_size=128 &
+    --batch_size=256 &
 
 
 # =========================================================================== #
