@@ -267,7 +267,7 @@ CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
     --learning_rate_decay_factor=0.94 \
     --num_epochs_per_decay=1.0 \
     --optimizer=rmsprop \
-    --batch_size=256 &
+    --batch_size=192 &
 
 
 # =========================================================================== #
