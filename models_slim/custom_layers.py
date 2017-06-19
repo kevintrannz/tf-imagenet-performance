@@ -225,16 +225,19 @@ def ksize_for_squeezing(inputs, default_ksize=[1024, 1024], data_format='NHWC'):
 
 @add_arg_scope
 def batch_norm(inputs,
+               activation_fn=None,
                normalizer_fn=None,
                normalizer_params=None):
     """Batch normalization layer compatible with the classic conv. API.
     Simpler to use with arg. scopes.
     """
-    # Nothing to do!
-    if normalizer_fn is None:
-        return inputs
-    normalizer_params = normalizer_params or {}
-    outputs = normalizer_fn(inputs, **normalizer_params)
+    outputs = inputs
+    # BN...
+    if normalizer_fn is not None:
+        normalizer_params = normalizer_params or {}
+        outputs = normalizer_fn(outputs, **normalizer_params)
+    if activation_fn is not None:
+        outputs = activation_fn(outputs)
     return outputs
 
 

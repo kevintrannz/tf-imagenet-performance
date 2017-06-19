@@ -100,19 +100,25 @@ def mobilenets_arg_scope(weight_decay=0.00004,
                 normalizer_fn=normalizer_fn,
                 normalizer_params=normalizer_params,
                 padding='SAME'):
-            # Data format scope...
-            with slim.arg_scope([slim.conv2d, slim.separable_conv2d,
-                                 slim.max_pool2d, slim.avg_pool2d,
-                                 custom_layers.pad2d,
-                                 custom_layers.depthwise_convolution2d,
-                                 custom_layers.concat_channels,
-                                 custom_layers.channel_to_last,
-                                 custom_layers.spatial_squeeze,
-                                 custom_layers.spatial_mean,
-                                 btree_layers.conv2d_1x1_split,
-                                 btree_layers.translate_channels],
-                                data_format=data_format) as sc:
-                return sc
+            with slim.arg_scope(
+                    [custom_layers.batch_norm],
+                    activation_fn=tf.nn.relu,
+                    normalizer_fn=normalizer_fn,
+                    normalizer_params=normalizer_params):
+                # Data format scope...
+                with slim.arg_scope([slim.conv2d, slim.separable_conv2d,
+                                     slim.max_pool2d, slim.avg_pool2d,
+                                     custom_layers.pad2d,
+                                     custom_layers.depthwise_convolution2d,
+                                     custom_layers.concat_channels,
+                                     custom_layers.channel_to_last,
+                                     custom_layers.spatial_squeeze,
+                                     custom_layers.spatial_mean,
+                                     custom_layers.batch_norm,
+                                     btree_layers.conv2d_1x1_split,
+                                     btree_layers.translate_channels],
+                                    data_format=data_format) as sc:
+                    return sc
 
 
 def mobilenets_btree(inputs,
@@ -166,8 +172,8 @@ def mobilenets_btree(inputs,
                               scope='conv_pw')
             return net
 
-    def mobilenet_block_btree(net, num_out_channels, stride=[1, 1],
-                              scope=None):
+    def mobilenet_block_btree_v1(net, num_out_channels, stride=[1, 1],
+                                 scope=None):
         """Basic MobileNet block combining:
          - depthwise conv + BN + relu
          - 1x1 conv + BN + relu
@@ -182,6 +188,29 @@ def mobilenets_btree(inputs,
             # Split-pointwise convolution.
             net = btree_layers.conv2d_1x1_split(
                 net, num_out_channels, split=2, scope='conv_pw_split')
+            return net
+
+    def mobilenet_block_btree_v2(net, num_out_channels, stride=[1, 1],
+                                 scope=None):
+        """Combination of ResNets block and B-tree.
+        """
+        with tf.variable_scope(scope, 'block', [net]) as sc:
+            # Start with Batch Norm.
+            net = custom_layers.batch_norm(net)
+            # Depthwise convolution with stride=1
+            net = custom_layers.depthwise_convolution2d(
+                net, kernel_size,
+                depth_multiplier=1,
+                stride=stride,
+                activation_fn=None,
+                scope='conv_dw')
+            # Split-pointwise convolution.
+            num_out_channels = int(num_out_channels * width_multiplier)
+            net = btree_layers.conv2d_1x1_split(
+                net, num_out_channels, split=2,
+                activation_fn=None,
+                normalizer_fn=None,
+                scope='conv_pw_split')
             return net
 
     with tf.variable_scope(scope, 'MobileNets', [inputs], reuse=reuse) as sc:
@@ -203,11 +232,11 @@ def mobilenets_btree(inputs,
         for i in range(5):
             # Residual block...
             res = net
-            net = mobilenet_block_btree(net, 512, scope='block%i_a' % (i+8))
+            net = mobilenet_block_btree_v2(net, 512, scope='block%i_a' % (i+8))
             net = btree_layers.translate_channels(
                 net, delta=128, scope='ch_translate_%i' % (i+8))
-            net = mobilenet_block_btree(net, 512, scope='block%i_b' % (i+8))
-            net = res + net
+            net = mobilenet_block_btree_v2(net, 512, scope='block%i_b' % (i+8))
+            net = tf.add(res, net, 'residual_sum_%i' % (i+8))
 
         # Final blocks.
         net = mobilenet_block(net, 1024, stride=[2, 2], scope='block13')
