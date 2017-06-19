@@ -114,7 +114,6 @@ def mobilenets_arg_scope(weight_decay=0.00004,
                                      custom_layers.channel_to_last,
                                      custom_layers.spatial_squeeze,
                                      custom_layers.spatial_mean,
-                                     custom_layers.batch_norm,
                                      btree_layers.conv2d_1x1_split,
                                      btree_layers.translate_channels],
                                     data_format=data_format) as sc:
