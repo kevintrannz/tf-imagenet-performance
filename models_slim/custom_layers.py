@@ -223,6 +223,21 @@ def ksize_for_squeezing(inputs, default_ksize=[1024, 1024], data_format='NHWC'):
     return kernel_size_out
 
 
+@add_arg_scope
+def batch_norm(inputs,
+               normalizer_fn=None,
+               normalizer_params=None):
+    """Batch normalization layer compatible with the classic conv. API.
+    Simpler to use with arg. scopes.
+    """
+    # Nothing to do!
+    if normalizer_fn is None:
+        return inputs
+    normalizer_params = normalizer_params or {}
+    outputs = normalizer_fn(inputs, **normalizer_params)
+    return outputs
+
+
 # =========================================================================== #
 # Depthwise convolution 2d with data format option.
 # =========================================================================== #
