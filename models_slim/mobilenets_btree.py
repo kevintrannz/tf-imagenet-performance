@@ -190,7 +190,9 @@ def mobilenets_btree(inputs,
                 net, num_out_channels, split=2, scope='conv_pw_split')
             return net
 
-    def mobilenet_block_btree_v2(net, num_out_channels, stride=[1, 1],
+    def mobilenet_block_btree_v2(net,
+                                 num_out_channels,
+                                 stride=[1, 1],
                                  scope=None):
         """Combination of ResNets block and B-tree.
         """
