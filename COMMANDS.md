@@ -225,9 +225,9 @@ TRAIN_DIR=/media/paul/DataExt4/ImageNet/training/logs/mobilenet_btree_001
 CUDA_VISIBLE_DEVICES=0,1
 
 DATASET_DIR=/media/imagenet/dataset
-TRAIN_DIR=/media/imagenet/training/logs/mobilenet_btree_001
+TRAIN_DIR=/media/imagenet/training/logs/mobilenet_btree_007
 
-CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
+CUDA_VISIBLE_DEVICES=3,4 nohup python -u tf_cnn_benchmarks_slim.py \
     --local_parameter_device=cpu \
     --train_dir=${TRAIN_DIR} \
     --data_dir=${DATASET_DIR} \
@@ -248,7 +248,7 @@ CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
     --batch_size=128 &
 
 DATASET_DIR=/media/imagenet/dataset
-TRAIN_DIR=/media/imagenet/training/logs/mobilenet_btree_001
+TRAIN_DIR=/media/imagenet/training/logs/mobilenet_btree_006
 
 CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
     --local_parameter_device=cpu \
@@ -267,8 +267,24 @@ CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
     --learning_rate_decay_factor=0.94 \
     --num_epochs_per_decay=1.0 \
     --optimizer=rmsprop \
-    --batch_size=192 &
+    --batch_size=128 &
 
+DATASET_DIR=/media/imagenet/dataset
+CHECKPOINT_PATH=/media/imagenet/training/logs/mobilenet_btree_005
+
+python -u tf_cnn_benchmarks_slim.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${CHECKPOINT_PATH} \
+    --data_dir=${DATASET_DIR} \
+    --data_name=imagenet \
+    --resize_method=crop_inception \
+    --model=mobilenets_btree \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=4 \
+    --num_batches=1000 \
+    --batch_size=50
 
 # =========================================================================== #
 # MobileNets training
