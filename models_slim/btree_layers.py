@@ -74,6 +74,11 @@ def split_channels(inputs, split=1, data_format='NHWC', scope=None):
 
 @add_arg_scope
 def translate_channels(inputs, delta=0, data_format='NHWC', scope=None):
+    """Convention:
+
+    Positive delta: push to the right.
+    Negative delta: push to the left.
+    """
     with tf.name_scope(scope, 'translate_channels', [inputs]):
         if data_format == 'NHWC':
             in0 = inputs[:, :, :, :-delta]
