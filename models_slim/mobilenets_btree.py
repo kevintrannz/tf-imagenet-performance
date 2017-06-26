@@ -230,14 +230,18 @@ def mobilenets_btree(inputs,
         net = mobilenet_block(net, 256, scope='block6')
         net = mobilenet_block(net, 512, stride=[2, 2], scope='block7')
         # Intermediate blocks...
-        for i in range(5):
-            # Residual block...
-            res = net
-            net = mobilenet_block_btree_v2(net, 512, scope='block%i_a' % (i+8))
-            net = btree_layers.translate_channels(
-                net, delta=128, scope='ch_translate_%i' % (i+8))
-            net = mobilenet_block_btree_v2(net, 512, scope='block%i_b' % (i+8))
-            net = tf.add(res, net, 'residual_sum_%i' % (i+8))
+        for i in range(8, 12):
+            with tf.variable_scope(scope, 'resblock_%i' % i, [net]) as sc:
+                # Residual block...
+                res = net
+                net = mobilenet_block_btree_v2(net, 512, scope='block%i_a' % i)
+                net = btree_layers.translate_channels(
+                    net, delta=128, scope='ch_translate_%i_a' % i)
+                net = mobilenet_block_btree_v2(net, 512, scope='block%i_b' % i)
+                net = btree_layers.translate_channels(
+                    net, delta=128, scope='ch_translate_%i_b' % i)
+                net = mobilenet_block_btree_v2(net, 512, scope='block%i_c' % i)
+                net = tf.add(res, net, 'residual_sum_%i' % i)
         net = custom_layers.batch_norm(net)
 
         # Final blocks.
