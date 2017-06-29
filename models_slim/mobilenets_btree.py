@@ -239,7 +239,7 @@ def mobilenets_btree(inputs,
                     net, delta=128, scope='ch_translate_%i_a' % i)
                 net = mobilenet_block_btree_v2(net, 512, scope='block%i_b' % i)
                 net = btree_layers.translate_channels(
-                    net, delta=128, scope='ch_translate_%i_b' % i)
+                    net, delta=-128, scope='ch_translate_%i_b' % i)
                 net = mobilenet_block_btree_v2(net, 512, scope='block%i_c' % i)
                 net = tf.add(res, net, 'residual_sum_%i' % i)
         net = custom_layers.batch_norm(net)

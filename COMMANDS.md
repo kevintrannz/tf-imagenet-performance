@@ -271,9 +271,21 @@ CUDA_VISIBLE_DEVICES=0,1 nohup python -u tf_cnn_benchmarks_slim.py \
 
 DATASET_DIR=/media/imagenet/dataset
 CHECKPOINT_PATH=/media/imagenet/training/logs/mobilenet_btree_005
+TRAIN_DIR=/media/imagenet/training/logs/mobilenet_btree_008
 
-
-
+python -u tf_cnn_benchmarks.py \
+    --eval=True \
+    --local_parameter_device=cpu \
+    --train_dir=${TRAIN_DIR} \
+    --data_dir=${DATASET_DIR} \
+    --resize_method=crop_inception \
+    --data_name=imagenet \
+    --model=mobilenets_btree \
+    --variable_update=parameter_server \
+    --summary_verbosity=1 \
+    --num_gpus=4 \
+    --num_batches=125 \
+    --batch_size=100
 
 # =========================================================================== #
 # MobileNets training
