@@ -171,7 +171,7 @@ def mobilenets_btree(inputs,
                               scope='conv_pw')
             return net
 
-    def mobilenet_block_btree_v1(net, num_out_channels, stride=[1, 1],
+    def mobilenet_block_btree_v1(net, num_out_channels, stride=[1, 1], split=2,
                                  scope=None):
         """Basic MobileNet block combining:
          - depthwise conv + BN + relu
@@ -186,12 +186,13 @@ def mobilenets_btree(inputs,
                 scope='conv_dw')
             # Split-pointwise convolution.
             net = btree_layers.conv2d_1x1_split(
-                net, num_out_channels, split=2, scope='conv_pw_split')
+                net, num_out_channels, split=split, scope='conv_pw_split')
             return net
 
     def mobilenet_block_btree_v2(net,
                                  num_out_channels,
                                  stride=[1, 1],
+                                 split=2,
                                  scope=None):
         """Combination of ResNets block and B-tree.
         """
@@ -208,7 +209,7 @@ def mobilenets_btree(inputs,
             # Split-pointwise convolution.
             num_out_channels = int(num_out_channels * width_multiplier)
             net = btree_layers.conv2d_1x1_split(
-                net, num_out_channels, split=2,
+                net, num_out_channels, split=split,
                 activation_fn=None,
                 normalizer_fn=None,
                 scope='conv_pw_split')
@@ -230,17 +231,17 @@ def mobilenets_btree(inputs,
         net = mobilenet_block(net, 256, scope='block6')
         net = mobilenet_block(net, 512, stride=[2, 2], scope='block7')
         # Intermediate blocks...
-        for i in range(8, 12):
+        for i in range(8, 16):
             with tf.variable_scope(scope, 'resblock_%i' % i, [net]) as sc:
                 # Residual block...
                 res = net
-                net = mobilenet_block_btree_v2(net, 512, scope='block%i_a' % i)
+                net = mobilenet_block_btree_v2(net, 512, split=4, scope='block%i_a' % i)
                 net = btree_layers.translate_channels(
-                    net, delta=128, scope='ch_translate_%i_a' % i)
-                net = mobilenet_block_btree_v2(net, 512, scope='block%i_b' % i)
+                    net, delta=64, scope='ch_translate_%i_a' % i)
+                net = mobilenet_block_btree_v2(net, 512, split=4, scope='block%i_b' % i)
                 net = btree_layers.translate_channels(
-                    net, delta=-128, scope='ch_translate_%i_b' % i)
-                net = mobilenet_block_btree_v2(net, 512, scope='block%i_c' % i)
+                    net, delta=-64, scope='ch_translate_%i_b' % i)
+                net = mobilenet_block_btree_v2(net, 512, split=4, scope='block%i_c' % i)
                 net = tf.add(res, net, 'residual_sum_%i' % i)
         net = custom_layers.batch_norm(net)
 
